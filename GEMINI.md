@@ -42,6 +42,7 @@ Every response, every tool call, and every line of code generated must be as con
 -   **Commit at Milestones:** Ask user to test, then commit at major milestones (successful compilation after new features).
 -   **Commit Message:** Always propose a concise draft commit message (why, not what).
 -   **Verification:** After each commit, run `git status`.
+-   **User Confirmation for Git Actions:** After making significant changes or when the user indicates satisfaction with current work (e.g., "it looks great!", "it works!"), confirm with the user before proceeding with any Git actions (e.g., committing, pushing).
 -   **No Push:** Never push to remote without explicit user instruction.
 -   **Exclusions:** Do not commit temporary files or secrets (e.g., `.env`, `project_structure_improvements.md`, `backups/`, `scripts/`). The `scripts/git_manager.sh` handles this.
 

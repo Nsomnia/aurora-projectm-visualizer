@@ -7,79 +7,92 @@
 #include <unordered_map>
 
 void CliParser::display_help(const std::string &program_name) {
-  std::cout << "Aurora Visualizer v" << APP_VERSION << "\n\n"
-            << "Usage: " << program_name
+  // ANSI escape codes for colors
+  const std::string RESET = "\033[0m";
+  const std::string BOLD = "\033[1m";
+  const std::string GREEN = "\033[32m";
+  const std::string YELLOW = "\033[33m";
+  const std::string CYAN = "\033[36m";
+  const std::string MAGENTA = "\033[35m";
+
+  std::cout << BOLD << GREEN << "Aurora Visualizer v" << APP_VERSION << RESET << "\n\n"
+            << BOLD << YELLOW << "Usage: " << program_name << RESET
             << " [options] [audio_file_1 audio_file_2 ...]\n\n"
 
-            << "--- Display & Performance ---\n"
-            << "  --width <px>               Set window width (default: 1024).\n"
-            << "  --height <px>              Set window height (default: 640).\n"
-            << "  --fps <value>              Set frames per second (default: 30).\n\n"
+            << BOLD << MAGENTA << "Display & Performance" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--width <px>" << RESET << "               Set window width (default: 1024).\n"
+            << "  " << BOLD << GREEN << "--height <px>" << RESET << "              Set window height (default: 640).\n"
+            << "  " << BOLD << GREEN << "--fps <value>" << RESET << "              Set frames per second (default: 30).\n\n"
 
-            << "--- Text & Font ---\n"
-            << "  --font-path <path>         Path to the font file (TTF/OTF).\n"
-            << "  --song-info-font-size <pt> Font size for song title and artist.\n"
-            << "  --url-font-size <pt>       Font size for the URL text.\n"
-            << "  --song-info-color <hex>    Font color for song info (e.g., FFFFFF).\n"
-            << "  --url-color <hex>          Font color for URL (e.g., 00A3B1).\n"
-            << "  --song-info-border-color <hex> Color for the song info text border.\n"
-            << "  --url-border-color <hex>   Color for the URL text border.\n"
-            << "  --song-info-border-thickness <val> Thickness of the song info text border.\n"
-            << "  --url-border-thickness <val>   Thickness of the URL text border.\n\n"
+            << BOLD << MAGENTA << "Text & Font" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--font-path <path>" << RESET << "         Path to the font file (TTF/OTF).\n"
+            << "  " << BOLD << GREEN << "--song-info-font-size <pt>" << RESET << " Font size for song title and artist.\n"
+            << "  " << BOLD << GREEN << "--url-font-size <pt>" << RESET << "       Font size for the URL text.\n"
+            << "  " << BOLD << GREEN << "--song-info-color <hex>" << RESET << "    Font color for song info (e.g., FFFFFF).\n"
+            << "  " << BOLD << GREEN << "--url-color <hex>" << RESET << "          Font color for URL (e.g., 00A3B1).\n"
+            << "  " << BOLD << GREEN << "--song-info-border-color <hex>" << RESET << " Color for the song info text border.\n"
+            << "  " << BOLD << GREEN << "--url-border-color <hex>" << RESET << "   Color for the URL text border.\n"
+            << "  " << BOLD << GREEN << "--song-info-border-thickness <val>" << RESET << " Thickness of the song info text border.\n"
+            << "  " << BOLD << GREEN << "--url-border-thickness <val>" << RESET << "   Thickness of the URL text border.\n\n"
 
-            << "--- Text Content & Visibility ---\n"
-            << "  --title <text>             Custom text to display as the title.\n"
-            << "  --artist-name <name>       Set artist name overlay.\n"
-            << "  --url-text <text>          Set URL text overlay.\n"
-            << "  --hide-title               Hide the song title text.\n"
-            << "  --hide-artist              Hide the artist name text.\n"
-            << "  --hide-url                 Hide the URL text.\n"
-            << "  --hide-border              Hide the text border.\n\n"
+            << BOLD << MAGENTA << "Text Content & Visibility" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--title <text>" << RESET << "             Custom text to display as the title.\n"
+            << "  " << BOLD << GREEN << "--artist-name <name>" << RESET << "       Set artist name overlay.\n"
+            << "  " << BOLD << GREEN << "--url-text <text>" << RESET << "          Set URL text overlay.\n"
+            << "  " << BOLD << GREEN << "--hide-title" << RESET << "               Hide the song title text.\n"
+            << "  " << BOLD << GREEN << "--hide-artist" << RESET << "              Hide the artist name text.\n"
+            << "  " << BOLD << GREEN << "--hide-url" << RESET << "                 Hide the URL text.\n"
+            << "  " << BOLD << GREEN << "--hide-border" << RESET << "              Hide the text border.\n\n"
 
-            << "--- Animation ---\n"
-            << "  --disable-text-animation   Disable the text animation.\n"
-            << "  --transition-time <sec>    Duration of the fade effect at the end.\n"
-            << "  --pre-fade-delay <sec>     Time to bounce at full opacity before fading.\n"
-            << "  --bounce-duration <sec>    How long the text bounces before fading.\n"
-            << "  --bounce-speed <pixels/sec> Speed of the bouncing text.\n"
-            << "  --bounce-randomness <val>  Amount of randomness to apply to bounce angle.\n"
-            << "  --fade-to-min-duration <sec> Time it takes to fade to minimum transparency.\n"
-            << "  --min-transparency <0-1>   The minimum transparency for the text.\n"
-            << "  --disable-breathing-effect Disable the text breathing effect.\n"
-            << "  --breathing-amount <val>   The amount the text size changes for the breathing effect.\n"
-            << "  --breathing-speed <val>    The speed of the text breathing effect.\n\n"
+            << BOLD << MAGENTA << "Animation" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--disable-text-animation" << RESET << "   Disable the text animation.\n"
+            << "  " << BOLD << GREEN << "--transition-time <sec>" << RESET << "    Duration of the fade effect at the end.\n"
+            << "  " << BOLD << GREEN << "--pre-fade-delay <sec>" << RESET << "     Time to bounce at full opacity before fading.\n"
+            << "  " << BOLD << GREEN << "--bounce-duration <sec>" << RESET << "    How long the text bounces before fading.\n"
+            << "  " << BOLD << GREEN << "--bounce-speed <pixels/sec>" << RESET << " Speed of the bouncing text.\n"
+            << "  " << BOLD << GREEN << "--bounce-randomness <val>" << RESET << "  Amount of randomness to apply to bounce angle.\n"
+            << "  " << BOLD << GREEN << "--fade-to-min-duration <sec>" << RESET << " Time it takes to fade to minimum transparency.\n"
+            << "  " << BOLD << GREEN << "--min-transparency <0-1>" << RESET << "   The minimum transparency for the text.\n"
+            << "  " << BOLD << GREEN << "--disable-breathing-effect" << RESET << " Disable the text breathing effect.\n"
+            << "  " << BOLD << GREEN << "--breathing-amount <val>" << RESET << "   The amount the text size changes for the breathing effect.\n"
+            << "  " << BOLD << GREEN << "--breathing-speed <val>" << RESET << "    The speed of the text breathing effect.\n\n"
 
-            << "--- Presets ---\n"
-            << "  --preset-duration <sec>    Time before switching to the next preset.\n"
-            << "  --preset-blend-time <sec>  Time for the blend transition between presets.\n"
-            << "  --preset-list-file <path>  Path to a file containing a list of .milk presets.\n"
-            << "  --broken-preset-directory <path> Directory to move broken presets to.\n"
-            << "  --favorites-file <path>    Path to the favorites file.\n"
-            << "  --next-preset-key <key>    Key to load the next random preset (e.g., 'n').\n"
-            << "  --prev-preset-key <key>    Key to load the previous preset (e.g., 'p').\n"
-            << "  --mark-broken-preset-key <key> Key to mark the current preset as broken (e.g., 'b').\n"
-            << "  --favorite-preset-key <key> Key to mark the current preset as a favorite (e.g., 'f').\n"
-            << "  --use-default-projectm-visualizer Use projectM's default visualizer for testing audio input.\n\n"
+            << BOLD << MAGENTA << "Presets" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--preset-duration <sec>" << RESET << "    Time before switching to the next preset.\n"
+            << "  " << BOLD << GREEN << "--preset-blend-time <sec>" << RESET << "  Time for the blend transition between presets.\n"
+            << "  " << BOLD << GREEN << "--preset-list-file <path>" << RESET << "  Path to a file containing a list of .milk presets.\n"
+            << "  " << BOLD << GREEN << "--broken-preset-directory <path>" << RESET << " Directory to move broken presets to.\n"
+            << "  " << BOLD << GREEN << "--favorites-file <path>" << RESET << "    Path to the favorites file.\n"
+            << "  " << BOLD << GREEN << "--next-preset-key <key>" << RESET << "    Key to load the next random preset (e.g., 'n').\n"
+            << "  " << BOLD << GREEN << "--prev-preset-key <key>" << RESET << "    Key to load the previous preset (e.g., 'p').\n"
+            << "  " << BOLD << GREEN << "--mark-broken-preset-key <key>" << RESET << " Key to mark the current preset as broken (e.g., 'b').\n"
+            << "  " << BOLD << GREEN << "--favorite-preset-key <key>" << RESET << " Key to mark the current preset as a favorite (e.g., 'f').\n"
+            << "  " << BOLD << GREEN << "--use-default-projectm-visualizer" << RESET << " Use projectM's default visualizer for testing audio input.\n\n"
 
-            << "--- Recording ---\n"
-            << "  --record-video             Enable video recording.\n"
-            << "  --audio-input-mode <mode>  Set audio input mode (SystemDefault, PipeWire, PulseAudio, File). Default: PipeWire.\n"
-            << "  --pipewire-sink-name <name> Set the name of the virtual PipeWire sink (default: AuroraSink).\n"
-            << "  --output-directory <path>  Directory to save recorded videos.\n"
-            << "  --video-framerate <value>  Set video recording framerate.\n"
-            << "  --ffmpeg-command <cmd>     The ffmpeg command template for recording.\n\n"
+            << BOLD << MAGENTA << "Recording" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--record-video" << RESET << "             Enable video recording.\n"
+            << "  " << BOLD << GREEN << "--audio-input-mode <mode>" << RESET << "  Set audio input mode (SystemDefault, PipeWire, PulseAudio, File). Default: PipeWire.\n"
+            << "  " << BOLD << GREEN << "--pipewire-sink-name <name>" << RESET << " Set the name of the virtual PipeWire sink (default: AuroraSink).\n"
+            << "  " << BOLD << GREEN << "--output-directory <path>" << RESET << "  Directory to save recorded videos.\n"
+            << "  " << BOLD << GREEN << "--video-framerate <value>" << RESET << "  Set video recording framerate.\n"
+            << "  " << BOLD << GREEN << "--ffmpeg-command <cmd>" << RESET << "     The ffmpeg command template for recording.\n\n"
 
-            << "--- Other ---\n"
-            << "  --audio-file <path>        Add an audio file to the playlist (can be used multiple times).\n"
-            << "  --version                  Display application version.\n"
-            << "  --verbose                  Enable verbose logging.\n"
-            << "  -h, --help                 Display this help message.\n";
+            << BOLD << MAGENTA << "Other" << RESET << "\n"
+            << "  " << BOLD << GREEN << "--audio-file <path>" << RESET << "        Add an audio file to the playlist (can be used multiple times).\n"
+            << "  " << BOLD << GREEN << "--version" << RESET << "                  Display application version.\n"
+            << "  " << BOLD << GREEN << "--verbose" << RESET << "                  Enable verbose logging.\n"
+            << "  " << BOLD << GREEN << "-h, --help" << RESET << "                 Display this help message.\n";
 }
 
 bool CliParser::parse(Config& config, int argc, char *argv[]) {
     std::vector<std::string> args;
     for (int i = 1; i < argc; ++i) {
         args.push_back(argv[i]);
+    }
+
+    if (argc < 2) { // No arguments provided
+        display_help(argv[0]);
+        return false;
     }
 
     for (const auto& arg : args) {
