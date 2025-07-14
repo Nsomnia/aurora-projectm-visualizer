@@ -1,0 +1,42 @@
+# General
+.DS_Store
+.env
+
+# Build artifacts
+/build/
+/*.o
+/*.out
+/visualizer
+/visualizer_*
+
+# Dependency directories
+/deps/
+
+# Backup and temporary files
+/backups/
+*.bak
+*.backup
+*.log
+*.mp4
+*.wav
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# CMake specific
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+_CPack_Packages/
+
+# ProjectM specific (if applicable)
+projectm_build/
+projectm_install/
+projectm_src/
+projectM_external-prefix/

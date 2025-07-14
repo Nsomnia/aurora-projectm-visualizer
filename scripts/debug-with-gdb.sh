@@ -1,0 +1,1 @@
+ gdb -ex run --ex bt --args ./bin/visualizer --record-video --audio-file /tmp/audio_test/combined_tones.wav

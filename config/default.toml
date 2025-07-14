@@ -1,0 +1,111 @@
+# Default configuration for Aurora Visualizer
+# Command-line arguments will override these settings.
+
+# --- Display & Performance ---
+# Window resolution
+width = 1024
+height = 640
+# Frames per second for both rendering and video recording.
+fps = 30
+
+# --- Text & Font ---
+# Path to the TTF or OTF font file for all text rendering.
+font_path = "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"
+# Font size for the song title and artist name.
+song_info_font_size = 42
+# Font size for the URL text.
+url_font_size = 28
+# Color of the song title and artist name (hexadecimal).
+song_info_font_color = "FFFFFF"
+# Color of the URL text (hexadecimal).
+url_font_color = "00A3B1"
+# Color of the border around the song title and artist name (hexadecimal).
+song_info_border_color = "000000"
+# Color of the border around the URL text (hexadecimal).
+url_border_color = "000000"
+# Thickness of the song title and artist name border. Set to 0.0 to disable.
+song_info_border_thickness = 0.2
+# Thickness of the URL text border. Set to 0.0 to disable.
+url_border_thickness = 0.2
+
+
+# --- Text Content & Visibility ---
+# Text to display for the artist name.
+artist_name = "DJ STEEL <3"
+# Text to display for the URL.
+url_text = "https://www.youtube.com/@DJDannySteel"
+# Toggles for showing/hiding text elements.
+show_song_title = true
+show_artist_name = true
+show_url = true
+# Toggle for the text border/shadow effect.
+show_text_border = true
+
+
+# --- Text Animation ---
+# Master switch for all text animations.
+text_animation_enabled = true
+# Time in seconds for the text to fade out at the end of the song. NOTE: IS IT FADING? DONT WANT FADE. WANT FRAME  1 AND LAST FRAME TO BE AS IDENTICAL AS POSSIBLE
+transition_time = 10.0
+# Time in seconds to wait at full opacity before the text starts fading to minimum transparency.
+pre_fade_delay = 10.0
+# How long the text bounces before starting to fade. NOTE: WHAT? AS IN EXTRA PRE_FADE_DELAY?
+bounce_duration = 7.0
+# Speed of the bouncing text in pixels per second.
+bounce_speed = 128
+# Amount of randomness to apply to the bounce angle to prevent repetitive patterns.
+bounce_randomness = 16.0
+# Time in seconds it takes for the text to fade to its minimum transparency.
+fade_to_min_duration = 16.0
+# The minimum transparency level (0.0 to 1.0) that the text will fade to.
+min_fade_transparency = 0.20
+# Master switch for the text "breathing" (slight pulsing size change) effect.
+text_breathing_effect = true
+# The amount the text size changes during the breathing effect.
+breathing_effect_amount = 0.03
+# The speed of the breathing effect.
+breathing_effect_speed = 0.7
+
+
+# --- Presets ---
+# Directory where .milk preset files are located. THE /USR/SHARE/PROJECTM/PRESETS IS STILL A DEFAULT AND THIS IS ADDITONAL DIRECTORY  SECONDARY RIGHT? ABSOLUTE PATH?
+presets_directory = "/usr/share/projectM/presets"
+# File to store the list of favorite presets.
+favorites_file = "favorites.txt"
+# Enable or disable random preset shuffling.
+shuffle_enabled = true
+# Time in seconds to play a single preset before switching.
+preset_duration = 15.0
+# Time in seconds for the blend transition between presets. PROJECTM DEFAULT = 2.7
+preset_blend_time = 1.5
+# Optional path to a file containing a specific list of .milk presets to load. IS THIS DIFFERENT THAN PRESETS DIRECTORY?
+preset_list_file = ""
+# Directory to move broken or problematic presets to. I THINK THIS LOGIC IS BROKEN, AND WE HAVE THE ENABLE/DISABLE (FAVORITES) "F" KEY ANYWAY SO THIS LOGIC I THINK COULD BE REMOVED YES/NO?
+broken_preset_directory = "broken_presets/"
+# Keybindings for preset management.
+next_preset_key = "n"
+prev_preset_key = "p"
+mark_broken_preset_key = "b"
+favorite_preset_key = "f"
+# Use projectM's default visualizer instead of loading presets. Useful for testing audio input. I JUST HAD THE DEFAULT SHOWING UP WHEN I LAUNCHED IT
+use_default_projectm_visualizer = false
+
+
+# --- Recording ---
+# Enable or disable video recording. ADD "BY DEFAULT I.E. FOR SCRIPTING FOR SHORT COMMAND LINES"?
+enable_recording = false
+# Directory to save recorded videos.
+video_directory = "videos"
+# Framerate for the recorded video. Should ideally match the main 'fps' setting.
+video_framerate = 30
+# The FFmpeg command template for recording.
+# Placeholders: {WIDTH}, {HEIGHT}, {FPS}, {AUDIO_FILE_PATH}, {OUTPUT_PATH}
+# Note: The existing complex command is preserved from your previous file.
+ffmpeg_command = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -i - -i {AUDIO_FILE_PATH} -c:v libx265 -crf 27 -c:a copy -r {FPS} -shortest -preset medium -threads 0 -movflags +faststart {OUTPUT_PATH}"
+
+
+# --- Audio ---
+# Audio input mode. Options: "SystemDefault", "PipeWire", "PulseAudio", "File"
+audio_input_mode = "PipeWire"
+# Name of the virtual PipeWire sink to create when using the PipeWire audio input mode.
+pipewire_sink_name = "AuroraSink"
