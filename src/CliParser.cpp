@@ -162,26 +162,45 @@ bool CliParser::parse(Config& config, int argc, char *argv[]) {
     flag_parsers["--verbose"] = [&config](){ config.verbose_logging = true; };
     flag_parsers["--use-default-projectm-visualizer"] = [&config](){ config.use_default_projectm_visualizer = true; };
 
-
     for (size_t i = 0; i < args.size(); ++i) {
-        const std::string &arg = args[i];
-        if (arg.rfind("--", 0) == 0) {
-            auto it = parsers.find(arg);
+        std::string arg = args[i];
+        std::string key = arg;
+        std::string value;
+
+        size_t equals_pos = arg.find('=');
+        if (equals_pos != std::string::npos) {
+            key = arg.substr(0, equals_pos);
+            value = arg.substr(equals_pos + 1);
+        }
+
+        if (key.rfind("--", 0) == 0) {
+            auto it = parsers.find(key);
             if (it != parsers.end()) {
-                if (i + 1 < args.size()) {
+                if (!value.empty()) {
+                    it->second(value);
+                } else if (i + 1 < args.size()) {
                     it->second(args[++i]);
                 }
-            } else {
-                auto flag_it = flag_parsers.find(arg);
-                if (flag_it != flag_parsers.end()) {
-                    flag_it->second();
-                } else {
-                    Logger::error("Unknown option: " + arg);
-                    display_help(argv[0]);
-                    return false;
-                }
+                continue;
             }
+
+            auto flag_it = flag_parsers.find(key);
+            if (flag_it != flag_parsers.end()) {
+                if (equals_pos != std::string::npos) {
+                     Logger::error("Flag option does not take a value: " + key);
+                     display_help(argv[0]);
+                     return false;
+                }
+                flag_it->second();
+                continue;
+            }
+
+            // If we are here, it's an unknown option
+            Logger::error("Unknown option: " + key);
+            display_help(argv[0]);
+            return false;
         } else {
+            // Positional argument
             config.audio_file_paths.push_back(arg);
         }
     }

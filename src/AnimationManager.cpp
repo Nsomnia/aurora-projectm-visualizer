@@ -133,25 +133,28 @@ void AnimationManager::updateBouncing(float deltaTime, const std::vector<std::st
         _titleBlockVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
         _titleBlockPosition.x = std::max(0.0f, std::min(_titleBlockPosition.x, _config.width - block_width));
     }
-    if (_titleBlockPosition.y - block_height < 0 || _titleBlockPosition.y > _config.height) {
+    float half_block_height = block_height / 2.0f;
+    if (_titleBlockPosition.y - half_block_height < 0 || _titleBlockPosition.y + half_block_height > _config.height) {
         _titleBlockVelocity.y *= -1;
         _titleBlockVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
-        _titleBlockPosition.y = std::max(block_height, std::min(_titleBlockPosition.y, (float)_config.height));
+        _titleBlockPosition.y = std::max(half_block_height, std::min(_titleBlockPosition.y, (float)_config.height - half_block_height));
     }
 
 
     _artistPosition += _artistVelocity * deltaTime;
     float artistWidth = _textRenderer.getTextWidth(_config.artistName, 1.0f);
+    float artistHeight = _config.songInfoFontSize; // Assuming font size is the height for artist text
+    float half_artist_height = artistHeight / 2.0f;
 
     if (_artistPosition.x < 0 || _artistPosition.x + artistWidth > _config.width) {
         _artistVelocity.x = -_artistVelocity.x;
         _artistVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
         _artistPosition.x = std::max(0.0f, std::min(_artistPosition.x, _config.width - artistWidth));
     }
-    if (_artistPosition.y < _config.songInfoFontSize || _artistPosition.y > _config.height) {
+    if (_artistPosition.y - half_artist_height < 0 || _artistPosition.y + half_artist_height > _config.height) {
         _artistVelocity.y = -_artistVelocity.y;
         _artistVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
-        _artistPosition.y = std::max((float)_config.songInfoFontSize, std::min(_artistPosition.y, (float)_config.height));
+        _artistPosition.y = std::max(half_artist_height, std::min(_artistPosition.y, (float)_config.height - half_artist_height));
     }
 }
 

@@ -74,7 +74,8 @@ struct Config {
     bool enable_recording = false;
     std::string video_directory = "videos";
     int video_framerate = 24;
-    char ffmpeg_command[1024] = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -r {FPS} -i - -i \"{AUDIO_FILE_PATH}\" -c:v libx265 -crf 28 -preset medium -c:a aac -b:a 192k \"{OUTPUT_PATH}\"";
+    //char ffmpeg_command[1024] = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -framerate {FPS} -i - -i \"{AUDIO_FILE_PATH}\" -c:v libx265 -crf 28 -preset medium -c:a copy \"{OUTPUT_PATH}\""
+      char ffmpeg_command[1024] = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -framerate {FPS} -i - -i {AUDIO_FILE_PATH} -c:v libx265 -crf 28 -preset medium -c:a copy {OUTPUT_PATH}";
 
     // Audio
     std::vector<std::string> audio_file_paths;

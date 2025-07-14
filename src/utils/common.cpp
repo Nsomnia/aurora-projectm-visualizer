@@ -13,6 +13,27 @@ std::string sanitize_filename(const std::string &filepath) {
     return filename;
 }
 
+std::string sanitize_for_filename(const std::string& input) {
+    std::string output = input;
+    // Remove path and extension
+    size_t last_slash = output.find_last_of("/\\");
+    if (last_slash != std::string::npos) {
+        output = output.substr(last_slash + 1);
+    }
+    size_t last_dot = output.find_last_of('.');
+    if (last_dot != std::string::npos) {
+        output = output.substr(0, last_dot);
+    }
+    // Replace invalid characters with underscores
+    std::string invalid_chars = "<>:\x22\x2F\x5C|\x3F\x2A\x27\x28\x29"; // "<>":/\\|?*'()"
+    for (char& c : output) {
+        if (invalid_chars.find(c) != std::string::npos) {
+            c = '_';
+        }
+    }
+    return output;
+}
+
 std::vector<std::string> wrapText(const std::string &text,
                                   int lineLengthTarget) {
   std::string processedText = text;

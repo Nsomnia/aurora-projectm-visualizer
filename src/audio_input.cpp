@@ -45,6 +45,13 @@ void AudioInput::set_projectm_handle(projectm_handle pM) {
     _audio_data.pM = pM;
 }
 
+double AudioInput::get_audio_duration() const {
+    if (_music) {
+        return Mix_MusicDuration(_music);
+    }
+    return 0.0;
+}
+
 void AudioInput::audio_callback(void* userdata, Uint8* stream, int len) {
     AudioData* audioData = static_cast<AudioData*>(userdata);
     if (!audioData || !audioData->pM) {

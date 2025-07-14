@@ -126,6 +126,7 @@ void Core::run() {
     while (!g_quit && static_cast<size_t>(current_audio_index) < _config.audio_file_paths.size()) {
         const std::string& current_audio_file = _config.audio_file_paths[current_audio_index];
         _audio_input.load_and_play_music(current_audio_file);
+        SDL_Delay(100); // Add a small delay to ensure the music is loaded
 
         _config.songTitle = sanitize_filename(current_audio_file);
         std::vector<std::string> titleLines = _text_manager.split_text(_config.songTitle, _config.width, 1.0f);
@@ -134,19 +135,11 @@ void Core::run() {
 
         auto last_frame_time = std::chrono::high_resolution_clock::now();
 
-        bool music_playing = true;
-        int extra_frames_after_music_ends = 0;
+        double audio_duration_seconds = _audio_input.get_audio_duration();
+        int target_frames = static_cast<int>(std::ceil(audio_duration_seconds * _config.video_framerate));
+        int frame_count = 0;
 
-        while (!g_quit && !g_quit_flag && (music_playing || extra_frames_after_music_ends > 0)) {
-            if (!Mix_PlayingMusic()) {
-                if (music_playing) {
-                    music_playing = false;
-                    // Render about a second of extra frames to ensure the video captures the tail end of the audio.
-                    extra_frames_after_music_ends = _config.fps;
-                }
-                extra_frames_after_music_ends--;
-            }
-
+        while (!g_quit && !g_quit_flag && frame_count < target_frames) {
             Uint32 frame_start_ticks = SDL_GetTicks();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -233,6 +226,7 @@ void Core::run() {
             if (frame_time < frame_duration_ms) {
                 SDL_Delay(frame_duration_ms - frame_time);
             }
+            frame_count++;
         }
 
         current_audio_index++;

@@ -1,4 +1,5 @@
 #include "VideoExporter.h"
+#include "utils/common.h"
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -7,28 +8,21 @@
 #include <filesystem>
 #include <cstring>
 
+
 namespace fs = std::filesystem;
 
-// Helper function to sanitize a filename
-static std::string sanitize_filename(const std::string& input) {
-    std::string output = input;
-    // Remove path and extension
-    size_t last_slash = output.find_last_of("/\\");
-    if (last_slash != std::string::npos) {
-        output = output.substr(last_slash + 1);
-    }
-    size_t last_dot = output.find_last_of('.');
-    if (last_dot != std::string::npos) {
-        output = output.substr(0, last_dot);
-    }
-    // Replace invalid characters with underscores
-    std::string invalid_chars = "<>:\"/\\|?*";
-    for (char& c : output) {
-        if (invalid_chars.find(c) != std::string::npos) {
-            c = '_';
+// Helper function to escape a string for use as a shell argument
+static std::string escape_shell_argument(const std::string& arg) {
+    std::string escaped_arg = "'";
+    for (char c : arg) {
+        if (c == '\'') { // Corrected: single quote character literal using hex escape
+            escaped_arg += "'\\''"; // Corrected: shell-escaped single quote using hex escape
+        } else {
+            escaped_arg += c;
         }
     }
-    return output;
+    escaped_arg += "'";
+    return escaped_arg;
 }
 
 // Helper function to replace placeholders in a string
@@ -60,7 +54,7 @@ bool VideoExporter::start_export(int width, int height) {
 
     std::string sanitized_filename = "output";
     if (!_config.audio_file_paths.empty()) {
-        sanitized_filename = sanitize_filename(_config.audio_file_paths[0]);
+        sanitized_filename = sanitize_for_filename(_config.audio_file_paths[0]);
     }
 
     auto now = std::chrono::system_clock::now();
@@ -70,17 +64,19 @@ bool VideoExporter::start_export(int width, int height) {
     std::string timestamp = ss.str();
 
     std::string output_path = _config.video_directory + "/" + sanitized_filename + "_" + timestamp + ".mp4";
+    std::string escaped_output_path = escape_shell_argument(output_path);
 
     std::string command = _config.ffmpeg_command;
     command = replace_placeholders(command, "{WIDTH}", std::to_string(_width));
     command = replace_placeholders(command, "{HEIGHT}", std::to_string(_height));
     command = replace_placeholders(command, "{FPS}", std::to_string(_config.video_framerate));
     if (!_config.audio_file_paths.empty()) {
-        command = replace_placeholders(command, "{AUDIO_FILE_PATH}", "\"" + _config.audio_file_paths[0] + "\"");
+        std::string escaped_audio_path = escape_shell_argument(_config.audio_file_paths[0]);
+        command = replace_placeholders(command, "{AUDIO_FILE_PATH}", escaped_audio_path);
     } else {
-        command = replace_placeholders(command, "-i \"{AUDIO_FILE_PATH}\"", "");
+        command = replace_placeholders(command, "-i {AUDIO_FILE_PATH}", "");
     }
-    command = replace_placeholders(command, "{OUTPUT_PATH}", "\"" + output_path + "\"");
+    command = replace_placeholders(command, "{OUTPUT_PATH}", escaped_output_path);
 
     std::cout << "Starting ffmpeg with command: " << command << std::endl;
 
@@ -104,5 +100,6 @@ void VideoExporter::end_export() {
 void VideoExporter::write_frame(const unsigned char* pixels) {
     if (_ffmpeg_pipe) {
         fwrite(pixels, 1, _width * _height * 3, _ffmpeg_pipe);
+        fflush(_ffmpeg_pipe);
     }
 }

@@ -7,6 +7,7 @@
 
 // Common utility functions and definitions
 std::string sanitize_filename(const std::string &filepath);
+std::string sanitize_for_filename(const std::string& input);
 std::vector<std::string> wrapText(const std::string &text, int lineLengthTarget);
 
 #endif // VISUALIZER_UTILS_COMMON_H
