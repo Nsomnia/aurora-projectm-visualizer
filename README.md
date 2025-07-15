@@ -31,10 +31,10 @@ This project is under active development, with a focus on robust performance, a 
     *   **`ffmpeg` is required for video recording.** Ensure `ffmpeg` is installed and accessible in your system's PATH.
 3.  **Build the project:**
     ```bash
-    mkdir build
+    mkdir -p build
     cd build
     cmake ..
-    make
+    cmake --build .
     ```
     The compiled binary will be located in the `build/` directory.
 

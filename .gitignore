@@ -11,6 +11,8 @@
 
 # Dependency directories
 /deps/
+/music/
+
 
 # Backup and temporary files
 /backups/

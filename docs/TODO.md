@@ -86,9 +86,7 @@ CTRL+left previous track
     *   `[ ]` Add `--show-fps`: A boolean flag to display the current frames per second.
     *   `[ ]` Add `--show-preset-name`: A boolean flag to display the current preset file name.
     *   `[ ]` Add `--show-preset-rating`: A boolean flag to display the preset rating (if available).
-*   **`[ ]` Code Health & Refactoring:**
-    ## Code Health & Refactoring
-
+*   **`[x]` Code Health & Refactoring:**
     *   `[x]` **Critical:** Replace the `Makefile` with a `CMakeLists.txt` file. This will provide better dependency management, cross-platform compatibility, and easier integration with IDEs.
     *   `[x]` Refactor `main.cpp`: Move argument parsing and configuration loading into the `Config` class to centralize all configuration logic.
     *   `[x]` Refactor `renderer.cpp`: Separate the core rendering loop from event handling logic. Event handling should be managed by the `EventHandler` class.
