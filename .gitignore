@@ -1,3 +1,6 @@
+## **GEMINI NOTE:**
+### Can we ignore EVERYTHING and then undo ignore on only the projects needed to compile files and docs?
+
 # General
 .DS_Store
 .env
@@ -6,11 +9,17 @@
 /build/
 /*.o
 /*.out
-/visualizer
-/visualizer_*
+# keep compiled binaries moved to the project root from /build/
+#/visualizer
+#/visualizer_*
+
+# generated videos
+/videos/
 
 # Dependency directories
 /deps/
+
+# testing audio
 /music/
 
 
@@ -36,6 +45,8 @@ Makefile
 install_manifest.txt
 compile_commands.json
 _CPack_Packages/
+# cmake build directory
+/build
 
 # ProjectM specific (if applicable)
 projectm_build/

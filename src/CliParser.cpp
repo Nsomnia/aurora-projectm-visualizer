@@ -108,7 +108,7 @@ bool CliParser::parse(Config& config, int argc, char *argv[]) {
     parsers["--fps"] = [&config](const std::string& v){ config.fps = std::stoi(v); };
     parsers["--output-directory"] = [&config](const std::string& v){ config.video_directory = v; };
     parsers["--video-framerate"] = [&config](const std::string& v){ config.video_framerate = std::stoi(v); };
-    parsers["--ffmpeg-command"] = [&config](const std::string& v){ strncpy(config.ffmpeg_command, v.c_str(), sizeof(config.ffmpeg_command) - 1); config.ffmpeg_command[sizeof(config.ffmpeg_command) - 1] = '\0'; };
+    parsers["--ffmpeg-command"] = [&config](const std::string& v){ config.ffmpeg_command = v; };
     parsers["--preset-duration"] = [&config](const std::string& v){ config.presetDuration = std::stod(v); };
     parsers["--preset-blend-time"] = [&config](const std::string& v){ config.presetBlendTime = std::stod(v); };
     parsers["--preset-list-file"] = [&config](const std::string& v){ config.preset_list_file = v; };

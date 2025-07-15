@@ -47,7 +47,7 @@ bool VideoExporter::start_export(int width, int height) {
     _width = width;
     _height = height;
 
-    if (strlen(_config.ffmpeg_command) == 0) {
+    if (_config.ffmpeg_command.empty()) {
         std::cerr << "Error: ffmpeg_command is not set in the configuration." << std::endl;
         return false;
     }
