@@ -8,12 +8,13 @@
 #include "AnimationManager.h"
 #include "TextRenderer.h"
 #include "TextManager.h"
-#include "QtGui.h"
 #include "VideoExporter.h"
 
 #include <SDL.h>
 #include <projectM-4/projectM.h>
 #include <memory>
+
+class QtGui; // Forward declaration
 
 class Core {
 public:
@@ -21,7 +22,9 @@ public:
     ~Core();
 
     bool init();
-    void run();
+    bool prepare_renderer();
+    bool run_single_frame();
+    std::vector<unsigned char> get_rendered_pixels();
     void cleanup();
     void set_gui(std::unique_ptr<QtGui> gui);
     void set_audio_file_paths(const std::vector<std::string>& paths);
@@ -33,12 +36,9 @@ public:
     void next_preset();
     void prev_preset();
     std::string get_current_preset_name() const;
-    Renderer& get_renderer() { return _renderer; }
 
 private:
     Config& _config;
-    SDL_Window* _window;
-    SDL_GLContext _context;
     projectm_handle _pM;
     Renderer _renderer;
     EventHandler _event_handler;

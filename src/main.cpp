@@ -53,11 +53,10 @@ int main(int argc, char* argv[]) {
     QtGui gui(config, visualizerCore);
     gui.init();
 
-    std::thread visualizerThread(&Core::run, &visualizerCore);
+    // Connect the application's aboutToQuit signal to the core's cleanup method
+    QObject::connect(&app, &QApplication::aboutToQuit, [&visualizerCore]() {
+        visualizerCore.cleanup();
+    });
 
-    int result = app.exec();
-
-    visualizerThread.join();
-
-    return result;
+    return app.exec();
 }

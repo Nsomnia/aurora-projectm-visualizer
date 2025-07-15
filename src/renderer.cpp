@@ -1,21 +1,31 @@
 #include "renderer.h"
-#include <iostream>
+#include "utils/Logger.h"
+#include <stdexcept>
+#include <vector>
 
-Renderer::Renderer() : _window(nullptr), _context(nullptr), _fbo(0), _fbo_texture(0), _rbo(0) {}
+Renderer::Renderer() : _context(nullptr), _fbo(0), _fbo_texture(0), _rbo(0) {}
 
 Renderer::~Renderer() {
     cleanup();
 }
 
-bool Renderer::init(SDL_Window* window, SDL_GLContext* context, Config& config) {
-    _window = window;
-    _context = context;
+bool Renderer::init(Config& config) {
+    _context = SDL_GL_CreateContext(nullptr);
+    if (!_context) {
+        Logger::error("Failed to create OpenGL context: " + std::string(SDL_GetError()));
+        return false;
+    }
+
+    if (glewInit() != GLEW_OK) {
+        Logger::error("GLEW initialization failed.");
+        return false;
+    }
 
     glViewport(0, 0, config.width, config.height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error after glClearColor: " << error << std::endl;
+        Logger::error("OpenGL Error after glClearColor: " + std::to_string(error));
         return false;
     }
 
@@ -23,7 +33,18 @@ bool Renderer::init(SDL_Window* window, SDL_GLContext* context, Config& config) 
 }
 
 void Renderer::render(projectm_handle pM) {
+    if (!_context) {
+        return;
+    }
     render_to_fbo(pM);
+}
+
+std::vector<unsigned char> Renderer::get_framebuffer_pixels(int width, int height) {
+    std::vector<unsigned char> pixels(width * height * 4);
+    glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return pixels;
 }
 
 void Renderer::cleanup() {
@@ -35,6 +56,9 @@ void Renderer::cleanup() {
     }
     if (_rbo) {
         glDeleteRenderbuffers(1, &_rbo);
+    }
+    if (_context) {
+        SDL_GL_DeleteContext(_context);
     }
 }
 
@@ -55,7 +79,7 @@ bool Renderer::create_fbo(int width, int height) {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _rbo);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        Logger::error("Framebuffer is not complete!");
         return false;
     }
 
@@ -70,4 +94,11 @@ void Renderer::render_to_fbo(projectm_handle pM) {
     projectm_opengl_render_frame(pM);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Now render the FBO texture to the screen
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // This part needs a shader program to draw the texture to a quad
+    // For now, let's just clear the screen to show something is happening
 }

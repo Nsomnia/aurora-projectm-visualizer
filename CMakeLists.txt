@@ -12,7 +12,7 @@ set(CPM_BINARY_DIR ${CMAKE_SOURCE_DIR}/deps/cpm_build)
 include(cmake/CPM.cmake)
 
 # --- System Dependencies ---
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_ttf REQUIRED)
@@ -78,6 +78,7 @@ set(APP_SOURCE_FILES
     src/TextRenderer.cpp
     src/TextManager.cpp
     src/QtGui.cpp
+    src/QtOpenGLWidget.cpp
     src/VideoExporter.cpp
     src/backends/audio_backend.cpp
     src/backends/display_backend.cpp
@@ -86,7 +87,10 @@ set(APP_SOURCE_FILES
 )
 
 # --- Qt MOC Generation ---
-qt6_wrap_cpp(MOC_SOURCES include/QtGui.h)
+qt6_wrap_cpp(MOC_SOURCES
+    include/QtGui.h
+    include/QtOpenGLWidget.h
+)
 
 # --- Executable Target ---
 add_executable(AuroraVisualizer ${APP_SOURCE_FILES} ${MOC_SOURCES})
@@ -106,6 +110,7 @@ target_link_libraries(AuroraVisualizer PRIVATE
 
     # System Libraries
     Qt6::Widgets
+    Qt6::OpenGLWidgets
     SDL2::SDL2
     SDL2_mixer::SDL2_mixer
     SDL2_ttf::SDL2_ttf
