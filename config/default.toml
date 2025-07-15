@@ -3,8 +3,8 @@
 
 # --- Display & Performance ---
 # Window resolution
-width = 1024
-height = 640
+width = 480
+height = 720
 # Frames per second for both rendering and video recording.
 fps = 30
 
