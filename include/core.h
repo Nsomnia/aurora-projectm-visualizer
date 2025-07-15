@@ -8,7 +8,7 @@
 #include "AnimationManager.h"
 #include "TextRenderer.h"
 #include "TextManager.h"
-#include "Gui.h"
+#include "QtGui.h"
 #include "VideoExporter.h"
 
 #include <SDL.h>
@@ -23,6 +23,7 @@ public:
     bool init();
     void run();
     void cleanup();
+    void set_gui(std::unique_ptr<QtGui> gui);
     Renderer& get_renderer() { return _renderer; }
 
 private:
@@ -38,7 +39,7 @@ private:
     TextManager _text_manager;
     AnimationManager _animation_manager;
     VideoExporter _video_exporter;
-    std::unique_ptr<Gui> _gui;
+    std::unique_ptr<QtGui> _gui;
 
     bool g_quit;
 };

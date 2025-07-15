@@ -1,5 +1,12 @@
 # Aurora Visualizer – KIMI Agent Deep-Dive Refactor / Optimisation Report  
-*(command-line core vs. embryonic Qt/GTK GUI)*  
+* Use libraries whenever possible to keep the cosebase as small a spossible and  automatic dependancy managment as well if possible. The C++ dependancy project is avialable in the deps directory
+
+---
+
+## 0, Users manually added improvments, requests, suggestions, or other thoughts.
+*  [ ] There must be a playlist of audio files as a form of playback queue. An option in the settings window and also as a command line option will allow this list to automatically play, and record if the record mode is enabled, first to last and ending on the last audio file song.
+*  [ ] Recordings should be done to a temporary folder such as /tmp/ where zram or zswap aid in write speeds. These files should not be kept if the songs played back in record mode do not playback fully. 
+*  [BUG] The playback to the user cuts off at an unpredictable time before hte end of the song but the recorded video is full start to finish.
 
 ---
 
@@ -151,4 +158,7 @@
 
 ---
 
-> *“Make it work, make it right, make it fast… then make it gorgeous.”*
+> *“Make it work, make it right, make it fast… then make it gorgeous.”*# Aurora Visualizer – KIMI Agent Deep-Dive Refactor / Optimisation Report  
+*(command-line core and  Qt/GTK GUI)*  
+
+

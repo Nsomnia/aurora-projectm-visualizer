@@ -4,6 +4,8 @@
 #include "ConfigLoader.h"
 #include "CliParser.h"
 #include "utils/Logger.h"
+#include "QtGui.h"
+#include <QApplication>
 #include <csignal>
 #include <iostream>
 
@@ -39,13 +41,17 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    QApplication app(argc, argv);
+
     Core visualizerCore(config);
     if (!visualizerCore.init()) {
         Logger::error("Failed to initialize visualizer core.");
         return 1;
     }
 
+    QtGui gui(config, visualizerCore);
+
     visualizerCore.run();
 
-    return 0;
+    return app.exec();
 }

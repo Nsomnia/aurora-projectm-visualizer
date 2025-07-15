@@ -20,6 +20,12 @@ void PresetManager::load_presets() {
     _current_preset_index = -1;
     _history_index = -1;
 
+    // Check if the presets directory exists
+    if (_config.presetsDirectory.empty() || !fs::exists(_config.presetsDirectory)) {
+        Logger::warn("Presets directory not found or not specified: " + _config.presetsDirectory);
+        return; // Not a fatal error, just run without presets
+    }
+
     // Load all presets from the directory
     try {
         for (const auto & entry : fs::recursive_directory_iterator(_config.presetsDirectory)) {

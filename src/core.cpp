@@ -1,7 +1,7 @@
 // src/core.cpp
 #include "core.h"
 #include "utils/common.h"
-#include "Gui.h"
+#include "QtGui.h"
 #include "VideoExporter.h"
 #include "utils/Logger.h"
 #include <chrono>
@@ -32,11 +32,15 @@ Core::Core(Config& config)
       _text_manager(_text_renderer),
       _animation_manager(_config, _text_renderer),
       _video_exporter(_config),
-      _gui(std::make_unique<Gui>(_config, *this)),
+      _gui(nullptr),
       g_quit(false) {}
 
 Core::~Core() {
     cleanup();
+}
+
+void Core::set_gui(std::unique_ptr<QtGui> gui) {
+    _gui = std::move(gui);
 }
 
 bool Core::init() {
@@ -95,11 +99,6 @@ bool Core::init() {
         return false;
     }
 
-    if (!_gui->init(_window, _context)) {
-        std::cerr << "Failed to initialize GUI" << std::endl;
-        return false;
-    }
-
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
@@ -149,8 +148,6 @@ void Core::run() {
 
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
-                _gui->handle_event(event);
-
                 _event_handler.handle_event(event, g_quit, current_audio_index, time_since_last_shuffle, currentPreset, _pM, titleLines);
             }
 
@@ -204,8 +201,6 @@ void Core::run() {
                 }
             }
 
-            _gui->render();
-
             if (_config.enable_recording) {
                 std::vector<unsigned char> frame_buffer(_config.width * _config.height * 3);
                 glReadPixels(0, 0, _config.width, _config.height, GL_RGB, GL_UNSIGNED_BYTE, frame_buffer.data());
@@ -238,8 +233,6 @@ void Core::run() {
 }
 
 void Core::cleanup() {
-    _gui->cleanup();
-
     if (_pM) {
         projectm_destroy(_pM);
     }

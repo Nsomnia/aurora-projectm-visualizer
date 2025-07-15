@@ -2,7 +2,7 @@
 #include "ConfigLoader.h"
 #include "Config.h"
 #include "utils/Logger.h"
-#include "toml.hpp"
+#include <toml++/toml.h>
 #include <filesystem>
 #include <iostream>
 
