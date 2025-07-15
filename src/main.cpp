@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <csignal>
 #include <iostream>
+#include <thread>
 
 // Global quit flag for signal handler
 volatile sig_atomic_t g_quit_flag = 0;
@@ -50,8 +51,13 @@ int main(int argc, char* argv[]) {
     }
 
     QtGui gui(config, visualizerCore);
+    gui.init();
 
-    visualizerCore.run();
+    std::thread visualizerThread(&Core::run, &visualizerCore);
 
-    return app.exec();
+    int result = app.exec();
+
+    visualizerThread.join();
+
+    return result;
 }

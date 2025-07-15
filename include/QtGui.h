@@ -3,7 +3,6 @@
 #include "Config.h"
 #include <QObject>
 #include <memory>
-#include <thread>
 
 class Core;
 class QMainWindow;
@@ -15,11 +14,10 @@ public:
     QtGui(Config& config, Core& core);
     ~QtGui();
 
-    void run();
+    void init();
 
 private:
     Config& _config;
     Core& _core;
     std::unique_ptr<QMainWindow> _window;
-    std::thread _thread;
 };

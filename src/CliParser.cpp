@@ -90,9 +90,8 @@ bool CliParser::parse(Config& config, int argc, char *argv[]) {
         args.push_back(argv[i]);
     }
 
-    if (argc < 2) { // No arguments provided
-        display_help(argv[0]);
-        return false;
+    if (args.empty() && argc > 1) { // No arguments, but program was run
+        return true;
     }
 
     for (const auto& arg : args) {
