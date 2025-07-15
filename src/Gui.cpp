@@ -25,6 +25,11 @@ void Gui::render() {
     ImGui::Image((ImTextureID)(intptr_t)_core.get_renderer().get_fbo_texture(), window_size, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 
+    // --- Test Window ---
+    ImGui::Begin("Hello, world!");
+    ImGui::Text("This is a test window.");
+    ImGui::End();
+
     ImGuiIntegration::render();
 }
 
