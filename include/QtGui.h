@@ -55,4 +55,5 @@ private:
     QDockWidget* visualizerDock;
     QListWidget* playlistWidget;
     QLabel* currentPresetLabel;
+    QWidget* visualizerWidget;
 };

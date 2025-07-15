@@ -26,7 +26,12 @@ void QtGui::init() {
     _window = std::make_unique<QMainWindow>();
     _window->setWindowTitle("Aurora Visualizer");
     _window->resize(_config.width, _config.height); // Set window size from config
-    _window->setCentralWidget(new QWidget()); // A dummy central widget
+
+    // Create the visualizer widget
+    visualizerWidget = new QWidget();
+    visualizerWidget->setMinimumSize(640, 480); // Example minimum size
+    visualizerWidget->setStyleSheet("background-color: black;"); // Black background
+    _window->setCentralWidget(visualizerWidget);
 
     createMenus();
     createDockWidgets();
@@ -50,16 +55,17 @@ void QtGui::createMenus() {
 }
 
 void QtGui::createDockWidgets() {
+    // General Controls Dock
     controlsDock = new QDockWidget(tr("Controls"), _window.get());
     controlsDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     QWidget* controlsWidget = new QWidget();
-    QVBoxLayout* layout = new QVBoxLayout(controlsWidget);
-    layout->setSpacing(10);
+    QVBoxLayout* controlsLayout = new QVBoxLayout(controlsWidget);
+    controlsLayout->setSpacing(10);
 
     // Preset Duration Slider
     QLabel* presetDurationLabel = new QLabel("Preset Duration: " + QString::number(_config.presetDuration, 'f', 1) + "s");
-    layout->addWidget(presetDurationLabel);
+    controlsLayout->addWidget(presetDurationLabel);
     QSlider* presetDurationSlider = new QSlider(Qt::Horizontal);
     presetDurationSlider->setRange(10, 600); // 1.0 to 60.0 seconds
     presetDurationSlider->setValue(static_cast<int>(_config.presetDuration * 10));
@@ -67,7 +73,7 @@ void QtGui::createDockWidgets() {
         _config.presetDuration = value / 10.0;
         presetDurationLabel->setText("Preset Duration: " + QString::number(_config.presetDuration, 'f', 1) + "s");
     });
-    layout->addWidget(presetDurationSlider);
+    controlsLayout->addWidget(presetDurationSlider);
 
     // Shuffle Enabled Checkbox
     QCheckBox* shuffleCheckBox = new QCheckBox("Shuffle Presets");
@@ -75,10 +81,9 @@ void QtGui::createDockWidgets() {
     connect(shuffleCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
         _config.shuffleEnabled = checked;
     });
-    layout->addWidget(shuffleCheckBox);
+    controlsLayout->addWidget(shuffleCheckBox);
 
-    layout->addStretch(); // Pushes widgets to the top
-
+    controlsLayout->addStretch(); // Pushes widgets to the top
     controlsDock->setWidget(controlsWidget);
     _window->addDockWidget(Qt::RightDockWidgetArea, controlsDock);
 
@@ -86,12 +91,9 @@ void QtGui::createDockWidgets() {
     playlistDock = new QDockWidget(tr("Playlist"), _window.get());
     playlistDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    playlistWidget = new QListWidget(); // Initialize member variable
+    playlistWidget = new QListWidget();
     playlistWidget->setDragDropMode(QAbstractItemView::InternalMove);
     playlistWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    playlistWidget->setDragEnabled(true);
-    playlistWidget->setAcceptDrops(true);
-    playlistWidget->setDropIndicatorShown(true);
     for (const std::string& filePath : _config.audio_file_paths) {
         playlistWidget->addItem(QString::fromStdString(filePath));
     }
@@ -125,12 +127,12 @@ void QtGui::createDockWidgets() {
     playlistDock->setWidget(playlistContainerWidget);
     _window->addDockWidget(Qt::LeftDockWidgetArea, playlistDock);
 
-    // Visualizer Dock
+    // Visualizer Controls Dock
     visualizerDock = new QDockWidget(tr("Visualizer"), _window.get());
     visualizerDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    QWidget* visualizerWidget = new QWidget();
-    QVBoxLayout* visualizerLayout = new QVBoxLayout(visualizerWidget);
+    QWidget* visualizerControlsWidget = new QWidget();
+    QVBoxLayout* visualizerLayout = new QVBoxLayout(visualizerControlsWidget);
     visualizerLayout->setSpacing(10);
 
     currentPresetLabel = new QLabel(tr("Current Preset: ") + QString::fromStdString(_core.get_current_preset_name()));
@@ -153,24 +155,18 @@ void QtGui::createDockWidgets() {
     visualizerLayout->addLayout(presetButtonsLayout);
 
     visualizerLayout->addStretch();
-    visualizerDock->setWidget(visualizerWidget);
+    visualizerDock->setWidget(visualizerControlsWidget);
     _window->addDockWidget(Qt::RightDockWidgetArea, visualizerDock);
 
-    // Connect buttons
+    // Connect signals to slots
     connect(addFileButton, &QPushButton::clicked, this, &QtGui::add_audio_file);
     connect(removeFileButton, &QPushButton::clicked, this, &QtGui::remove_selected_audio_file);
-
-    // Connect for reordering
     connect(playlistWidget->model(), &QAbstractItemModel::rowsMoved, this, &QtGui::playlist_reordered);
-
-    // Connect playback buttons
     connect(playButton, &QPushButton::clicked, this, &QtGui::play_audio);
     connect(pauseButton, &QPushButton::clicked, this, &QtGui::pause_audio);
     connect(stopButton, &QPushButton::clicked, this, &QtGui::stop_audio);
     connect(nextButton, &QPushButton::clicked, this, &QtGui::next_audio);
     connect(prevButton, &QPushButton::clicked, this, &QtGui::prev_audio);
-
-    // Connect preset buttons
     connect(nextPresetButton, &QPushButton::clicked, this, &QtGui::next_preset);
     connect(prevPresetButton, &QPushButton::clicked, this, &QtGui::prev_preset);
 }
