@@ -3,6 +3,7 @@
 #include "Config.h"
 #include <QObject>
 #include <memory>
+#include <QLabel>
 
 // Forward declarations for Qt classes
 class Core;
@@ -26,6 +27,13 @@ private slots:
     void add_audio_file();
     void remove_selected_audio_file();
     void playlist_reordered();
+    void play_audio();
+    void pause_audio();
+    void stop_audio();
+    void next_audio();
+    void prev_audio();
+    void next_preset();
+    void prev_preset();
 
 private:
     void createMenus();
@@ -44,5 +52,7 @@ private:
     // Dock Widgets
     QDockWidget* controlsDock;
     QDockWidget* playlistDock;
+    QDockWidget* visualizerDock;
     QListWidget* playlistWidget;
+    QLabel* currentPresetLabel;
 };

@@ -115,3 +115,14 @@ target_link_libraries(AuroraVisualizer PRIVATE
     glm::glm
     PkgConfig::FFMPEG
 )
+
+# Get current timestamp
+string(TIMESTAMP CMAKE_BUILD_TIMESTAMP "%Y%m%d_%H%M%S")
+
+# Custom command to copy the executable to backups with a timestamp
+add_custom_command(TARGET AuroraVisualizer POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:AuroraVisualizer>
+            ${CMAKE_SOURCE_DIR}/backups/AuroraVisualizer_${CMAKE_BUILD_TIMESTAMP}
+    COMMENT "Backing up AuroraVisualizer executable to backups directory."
+)

@@ -57,7 +57,7 @@ struct Config {
     float breathing_effect_speed = 1.0f;
 
     // Presets
-    std::string presetsDirectory = "presets/";
+    std::string presetsDirectory = "/usr/share/projectM/presets";
     std::string favoritesFile = "favorites.txt";
     bool shuffleEnabled = true;
     double presetDuration = 15.0;
@@ -69,6 +69,7 @@ struct Config {
     SDL_Keycode mark_broken_preset_key = SDLK_b;
     SDL_Keycode favorite_preset_key = SDLK_f;
     bool use_default_projectm_visualizer = false;
+    bool favorites_only_shuffle = false;
 
     // Recording
     bool enable_recording = false;

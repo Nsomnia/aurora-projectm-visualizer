@@ -67,7 +67,8 @@ void CliParser::display_help(const std::string &program_name) {
             << "  " << BOLD << GREEN << "--prev-preset-key <key>" << RESET << "    Key to load the previous preset (e.g., 'p').\n"
             << "  " << BOLD << GREEN << "--mark-broken-preset-key <key>" << RESET << " Key to mark the current preset as broken (e.g., 'b').\n"
             << "  " << BOLD << GREEN << "--favorite-preset-key <key>" << RESET << " Key to mark the current preset as a favorite (e.g., 'f').\n"
-            << "  " << BOLD << GREEN << "--use-default-projectm-visualizer" << RESET << " Use projectM's default visualizer for testing audio input.\n\n"
+            << "  " << BOLD << GREEN << "--use-default-projectm-visualizer" << RESET << " Use projectM's default visualizer for testing audio input.\n"
+            << "  " << BOLD << GREEN << "--favorites-only-shuffle" << RESET << "    Only shuffle favorite presets.\n\n"
 
             << BOLD << MAGENTA << "Recording" << RESET << "\n"
             << "  " << BOLD << GREEN << "--record-video" << RESET << "             Enable video recording.\n"
@@ -160,6 +161,7 @@ bool CliParser::parse(Config& config, int argc, char *argv[]) {
     flag_parsers["--version"] = [&config](){ config.show_version = true; };
     flag_parsers["--verbose"] = [&config](){ config.verbose_logging = true; };
     flag_parsers["--use-default-projectm-visualizer"] = [&config](){ config.use_default_projectm_visualizer = true; };
+    flag_parsers["--favorites-only-shuffle"] = [&config](){ config.favorites_only_shuffle = true; };
 
     for (size_t i = 0; i < args.size(); ++i) {
         std::string arg = args[i];

@@ -33,7 +33,9 @@ Core::Core(Config& config)
       _animation_manager(_config, _text_renderer),
       _video_exporter(_config),
       _gui(nullptr),
-      g_quit(false) {}
+      g_quit(false),
+      _current_audio_index(0),
+      _playback_state(PlaybackState::Stopped) {}
 
 Core::~Core() {
     cleanup();
@@ -45,8 +47,121 @@ void Core::set_gui(std::unique_ptr<QtGui> gui) {
 
 void Core::set_audio_file_paths(const std::vector<std::string>& paths) {
     _config.audio_file_paths = paths;
-    // Potentially reset current_audio_index or handle current playback if needed
-    // For now, the run loop will pick up the new list on the next iteration.
+    // When the playlist is reordered or changed, we might want to reset the current audio index
+    // or ensure the currently playing track is still valid. For now, the run loop will pick up
+    // the new list on its next iteration.
+}
+
+void Core::load_and_play_current_audio() {
+    if (_config.audio_file_paths.empty()) {
+        Logger::info("No audio files in playlist to play.");
+        _playback_state = PlaybackState::Stopped;
+        return;
+    }
+
+    if (_current_audio_index < 0) {
+        _current_audio_index = _config.audio_file_paths.size() - 1;
+    } else if (static_cast<size_t>(_current_audio_index) >= _config.audio_file_paths.size()) {
+        _current_audio_index = 0;
+    }
+
+    const std::string& current_audio_file = _config.audio_file_paths[_current_audio_index];
+    _audio_input.load_and_play_music(current_audio_file);
+    SDL_Delay(100); // Small delay to ensure music is loaded
+
+    _config.songTitle = sanitize_filename(current_audio_file);
+    std::vector<std::string> titleLines = _text_manager.split_text(_config.songTitle, _config.width, 1.0f);
+    _animation_manager.reset(titleLines);
+
+    _playback_state = PlaybackState::Playing;
+    Logger::info("Now playing: " + current_audio_file);
+}
+
+void Core::play_audio() {
+    if (_playback_state == PlaybackState::Paused) {
+        Mix_ResumeMusic();
+        _playback_state = PlaybackState::Playing;
+        Logger::info("Resumed audio playback.");
+    } else if (_playback_state == PlaybackState::Stopped) {
+        load_and_play_current_audio();
+    } else {
+        Logger::info("Audio is already playing.");
+    }
+}
+
+void Core::pause_audio() {
+    if (_playback_state == PlaybackState::Playing) {
+        Mix_PauseMusic();
+        _playback_state = PlaybackState::Paused;
+        Logger::info("Paused audio playback.");
+    } else {
+        Logger::info("Audio is not playing or already paused.");
+    }
+}
+
+void Core::stop_audio() {
+    if (_playback_state != PlaybackState::Stopped) {
+        Mix_HaltMusic();
+        _playback_state = PlaybackState::Stopped;
+        Logger::info("Stopped audio playback.");
+    } else {
+        Logger::info("Audio is already stopped.");
+    }
+}
+
+void Core::next_audio() {
+    if (!_config.audio_file_paths.empty()) {
+        _current_audio_index++;
+        load_and_play_current_audio();
+    } else {
+        Logger::warn("No audio files to skip to next.");
+    }
+}
+
+void Core::prev_audio() {
+    if (!_config.audio_file_paths.empty()) {
+        _current_audio_index--;
+        load_and_play_current_audio();
+    } else {
+        Logger::warn("No audio files to skip to previous.");
+    }
+}
+
+void Core::next_preset() {
+    std::string preset_path = _preset_manager.get_next_preset();
+    if (!preset_path.empty()) {
+        projectm_load_preset_file(_pM, preset_path.c_str(), true);
+        Logger::info("Loaded next preset: " + preset_path);
+    } else {
+        Logger::warn("No next preset available.");
+    }
+}
+
+void Core::prev_preset() {
+    std::string preset_path = _preset_manager.get_prev_preset();
+    if (!preset_path.empty()) {
+        projectm_load_preset_file(_pM, preset_path.c_str(), true);
+        Logger::info("Loaded previous preset: " + preset_path);
+    } else {
+        Logger::warn("No previous preset available.");
+    }
+}
+
+std::string Core::get_current_preset_name() const {
+    return _preset_manager.get_current_preset();
+}
+
+void Core::cleanup() {
+    if (_pM) {
+        projectm_destroy(_pM);
+    }
+    if (_context) {
+        SDL_GL_DeleteContext(_context);
+    }
+    if (_window) {
+        SDL_DestroyWindow(_window);
+    }
+    SDL_Quit();
 }
 
 bool Core::init() {
@@ -112,133 +227,6 @@ bool Core::init() {
 }
 
 void Core::run() {
-    int current_audio_index = 0;
-    double time_since_last_shuffle = 0.0;
-    std::string currentPreset;
-    if (!_config.use_default_projectm_visualizer) {
-        currentPreset = _preset_manager.get_next_preset();
-        if (!currentPreset.empty()) {
-            projectm_load_preset_file(_pM, currentPreset.c_str(), true);
-        }
-    }
-
-    if (_config.enable_recording) {
-        _video_exporter.start_export(_config.width, _config.height);
-    }
-
-    const Uint32 frame_duration_ms = 1000 / _config.fps;
-
-    while (!g_quit && static_cast<size_t>(current_audio_index) < _config.audio_file_paths.size()) {
-        const std::string& current_audio_file = _config.audio_file_paths[current_audio_index];
-        _audio_input.load_and_play_music(current_audio_file);
-        SDL_Delay(100); // Add a small delay to ensure the music is loaded
-
-        _config.songTitle = sanitize_filename(current_audio_file);
-        std::vector<std::string> titleLines = _text_manager.split_text(_config.songTitle, _config.width, 1.0f);
-
-        _animation_manager.reset(titleLines);
-
-        auto last_frame_time = std::chrono::high_resolution_clock::now();
-
-        double audio_duration_seconds = _audio_input.get_audio_duration();
-        int target_frames = static_cast<int>(std::ceil(audio_duration_seconds * _config.video_framerate));
-        int frame_count = 0;
-
-        while (!g_quit && !g_quit_flag && frame_count < target_frames) {
-            Uint32 frame_start_ticks = SDL_GetTicks();
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            auto current_frame_time = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> delta_time = current_frame_time - last_frame_time;
-            last_frame_time = current_frame_time;
-
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) {
-                _event_handler.handle_event(event, g_quit, current_audio_index, time_since_last_shuffle, currentPreset, _pM, titleLines);
-            }
-
-            if (_config.shuffleEnabled && !_config.use_default_projectm_visualizer) {
-                time_since_last_shuffle += delta_time.count();
-                if (time_since_last_shuffle >= _config.presetDuration) {
-                    currentPreset = _preset_manager.get_next_preset();
-                    if (!currentPreset.empty()) {
-                        projectm_load_preset_file(_pM, currentPreset.c_str(), true);
-                    }
-                    time_since_last_shuffle = 0.0;
-                }
-            }
-
-            double music_len = Mix_MusicDuration(_audio_input.get_music());
-            double current_time = Mix_GetMusicPosition(_audio_input.get_music());
-
-            if (_config.text_animation_enabled) {
-                _animation_manager.update(music_len, current_time, titleLines);
-            }
-
-            _renderer.render(_pM);
-
-            if (_text_renderer.is_initialized()) {
-                float alpha = _config.text_animation_enabled ? _animation_manager.getAlpha() : 1.0f;
-                float scale = _config.text_animation_enabled ? _animation_manager.getBreathingScale() : 1.0f;
-
-                if (_config.show_song_title) {
-                    const auto titlePositions = _animation_manager.getTitlePositions(titleLines);
-                    for (size_t i = 0; i < titleLines.size(); ++i) {
-                        _text_renderer.renderText(
-                            titleLines[i], titlePositions[i].x, titlePositions[i].y,
-                            scale, _config.songInfoFontColor, alpha, _config.show_text_border, _config.songInfoBorderColor,
-                            _config.songInfoBorderThickness);
-                    }
-                }
-
-                if (_config.show_artist_name) {
-                    glm::vec2 artistPos = _animation_manager.getArtistPosition();
-                    _text_renderer.renderText(
-                        _config.artistName, artistPos.x, artistPos.y,
-                        scale, _config.songInfoFontColor, alpha, _config.show_text_border, _config.songInfoBorderColor,
-                        _config.songInfoBorderThickness);
-                }
-
-                if (_config.show_url) {
-                    float url_scale = static_cast<float>(_config.urlFontSize) / static_cast<float>(_config.songInfoFontSize);
-                    _text_renderer.renderText(_config.urlText, 10, 10, url_scale * scale, _config.urlFontColor,
-                                            1.0f, _config.show_text_border, _config.urlBorderColor,
-                                            _config.urlBorderThickness);
-                }
-            }
-
-            if (_config.enable_recording) {
-                std::vector<unsigned char> frame_buffer(_config.width * _config.height * 3);
-                glReadPixels(0, 0, _config.width, _config.height, GL_RGB, GL_UNSIGNED_BYTE, frame_buffer.data());
-
-                // Flip the image vertically
-                std::vector<unsigned char> flipped_buffer(_config.width * _config.height * 3);
-                for (int y = 0; y < _config.height; ++y) {
-                    memcpy(flipped_buffer.data() + y * _config.width * 3, frame_buffer.data() + (_config.height - 1 - y) * _config.width * 3, _config.width * 3);
-                }
-
-                _video_exporter.write_frame(flipped_buffer.data());
-            }
-
-            SDL_GL_SwapWindow(_window);
-
-            // Frame pacing
-            Uint32 frame_time = SDL_GetTicks() - frame_start_ticks;
-            if (frame_time < frame_duration_ms) {
-                SDL_Delay(frame_duration_ms - frame_time);
-            }
-            frame_count++;
-        }
-
-        current_audio_index++;
-    }
-
-    if (_config.enable_recording) {
-        _video_exporter.end_export();
-    }
-}
-
-void Core::cleanup() {
     if (_pM) {
         projectm_destroy(_pM);
     }

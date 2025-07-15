@@ -25,6 +25,14 @@ public:
     void cleanup();
     void set_gui(std::unique_ptr<QtGui> gui);
     void set_audio_file_paths(const std::vector<std::string>& paths);
+    void play_audio();
+    void pause_audio();
+    void stop_audio();
+    void next_audio();
+    void prev_audio();
+    void next_preset();
+    void prev_preset();
+    std::string get_current_preset_name() const;
     Renderer& get_renderer() { return _renderer; }
 
 private:
@@ -43,4 +51,9 @@ private:
     std::unique_ptr<QtGui> _gui;
 
     bool g_quit;
+    int _current_audio_index;
+    enum class PlaybackState { Stopped, Playing, Paused } _playback_state;
+
+    // Private helper to load and play a specific audio file
+    void load_and_play_current_audio();
 };

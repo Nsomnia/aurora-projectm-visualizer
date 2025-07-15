@@ -110,7 +110,48 @@ bool ConfigLoader::load(Config& config, const std::string &executable_path_str) 
         config.ffmpeg_command = recording["ffmpeg_command"].value_or(config.ffmpeg_command);
     }
 
-    // ... (add other sections like animation, presets, etc. in the same way)
+    if (merged_config.contains("presets")) {
+        const auto& presets = *merged_config["presets"].as_table();
+        config.presetsDirectory = resolve_path(presets["presets_directory"].value_or(config.presetsDirectory));
+        config.favoritesFile = presets["favorites_file"].value_or(config.favoritesFile);
+        config.shuffleEnabled = presets["shuffle_enabled"].value_or(config.shuffleEnabled);
+        config.presetDuration = presets["preset_duration"].value_or(config.presetDuration);
+        config.presetBlendTime = presets["preset_blend_time"].value_or(config.presetBlendTime);
+        config.preset_list_file = resolve_path(presets["preset_list_file"].value_or(config.preset_list_file));
+        config.broken_preset_directory = resolve_path(presets["broken_preset_directory"].value_or(config.broken_preset_directory));
+        config.next_preset_key = SDL_GetKeyFromName(presets["next_preset_key"].value_or("n"));
+        config.prev_preset_key = SDL_GetKeyFromName(presets["prev_preset_key"].value_or("p"));
+        config.mark_broken_preset_key = SDL_GetKeyFromName(presets["mark_broken_preset_key"].value_or("b"));
+        config.favorite_preset_key = SDL_GetKeyFromName(presets["favorite_preset_key"].value_or("f"));
+        config.use_default_projectm_visualizer = presets["use_default_projectm_visualizer"].value_or(config.use_default_projectm_visualizer);
+        config.favorites_only_shuffle = presets["favorites_only_shuffle"].value_or(config.favorites_only_shuffle);
+    }
+
+    if (merged_config.contains("audio")) {
+        const auto& audio = *merged_config["audio"].as_table();
+        std::string audio_mode_str = audio["audio_input_mode"].value_or("PipeWire");
+        if (audio_mode_str == "SystemDefault") config.audio_input_mode = AudioInputMode::SystemDefault;
+        else if (audio_mode_str == "PipeWire") config.audio_input_mode = AudioInputMode::PipeWire;
+        else if (audio_mode_str == "PulseAudio") config.audio_input_mode = AudioInputMode::PulseAudio;
+        else if (audio_mode_str == "File") config.audio_input_mode = AudioInputMode::File;
+        else Logger::warn("Unknown audio input mode in config: " + audio_mode_str);
+        config.pipewire_sink_name = audio["pipewire_sink_name"].value_or(config.pipewire_sink_name);
+    }
+
+    if (merged_config.contains("animation")) {
+        const auto& animation = *merged_config["animation"].as_table();
+        config.text_animation_enabled = animation["text_animation_enabled"].value_or(config.text_animation_enabled);
+        config.transitionTime = animation["transition_time"].value_or(config.transitionTime);
+        config.pre_fade_delay = animation["pre_fade_delay"].value_or(config.pre_fade_delay);
+        config.bounce_duration = animation["bounce_duration"].value_or(config.bounce_duration);
+        config.bounce_speed = animation["bounce_speed"].value_or(config.bounce_speed);
+        config.bounce_randomness = animation["bounce_randomness"].value_or(config.bounce_randomness);
+        config.fade_to_min_duration = animation["fade_to_min_duration"].value_or(config.fade_to_min_duration);
+        config.minFadeTransparency = animation["min_fade_transparency"].value_or(config.minFadeTransparency);
+        config.text_breathing_effect = animation["text_breathing_effect"].value_or(config.text_breathing_effect);
+        config.breathing_effect_amount = animation["breathing_effect_amount"].value_or(config.breathing_effect_amount);
+        config.breathing_effect_speed = animation["breathing_effect_speed"].value_or(config.breathing_effect_speed);
+    }
 
     return true;
 }

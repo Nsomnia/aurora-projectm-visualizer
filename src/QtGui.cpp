@@ -106,10 +106,55 @@ void QtGui::createDockWidgets() {
     playlistButtonsLayout->addWidget(removeFileButton);
     playlistLayout->addLayout(playlistButtonsLayout);
 
+    // Playback Controls
+    QHBoxLayout* playbackButtonsLayout = new QHBoxLayout();
+    QPushButton* playButton = new QPushButton(tr("Play"));
+    QPushButton* pauseButton = new QPushButton(tr("Pause"));
+    QPushButton* stopButton = new QPushButton(tr("Stop"));
+    QPushButton* nextButton = new QPushButton(tr("Next"));
+    QPushButton* prevButton = new QPushButton(tr("Previous"));
+    playbackButtonsLayout->addWidget(prevButton);
+    playbackButtonsLayout->addWidget(playButton);
+    playbackButtonsLayout->addWidget(pauseButton);
+    playbackButtonsLayout->addWidget(stopButton);
+    playbackButtonsLayout->addWidget(nextButton);
+    playlistLayout->addLayout(playbackButtonsLayout);
+
     QWidget* playlistContainerWidget = new QWidget();
     playlistContainerWidget->setLayout(playlistLayout);
     playlistDock->setWidget(playlistContainerWidget);
     _window->addDockWidget(Qt::LeftDockWidgetArea, playlistDock);
+
+    // Visualizer Dock
+    visualizerDock = new QDockWidget(tr("Visualizer"), _window.get());
+    visualizerDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    QWidget* visualizerWidget = new QWidget();
+    QVBoxLayout* visualizerLayout = new QVBoxLayout(visualizerWidget);
+    visualizerLayout->setSpacing(10);
+
+    currentPresetLabel = new QLabel(tr("Current Preset: ") + QString::fromStdString(_core.get_current_preset_name()));
+    visualizerLayout->addWidget(currentPresetLabel);
+
+    // Favorites Only Shuffle Checkbox
+    QCheckBox* favoritesOnlyShuffleCheckBox = new QCheckBox(tr("Shuffle Favorites Only"));
+    favoritesOnlyShuffleCheckBox->setChecked(_config.favorites_only_shuffle);
+    connect(favoritesOnlyShuffleCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+        _config.favorites_only_shuffle = checked;
+    });
+    visualizerLayout->addWidget(favoritesOnlyShuffleCheckBox);
+
+    // Next/Previous Preset Buttons
+    QHBoxLayout* presetButtonsLayout = new QHBoxLayout();
+    QPushButton* prevPresetButton = new QPushButton(tr("Previous Preset"));
+    QPushButton* nextPresetButton = new QPushButton(tr("Next Preset"));
+    presetButtonsLayout->addWidget(prevPresetButton);
+    presetButtonsLayout->addWidget(nextPresetButton);
+    visualizerLayout->addLayout(presetButtonsLayout);
+
+    visualizerLayout->addStretch();
+    visualizerDock->setWidget(visualizerWidget);
+    _window->addDockWidget(Qt::RightDockWidgetArea, visualizerDock);
 
     // Connect buttons
     connect(addFileButton, &QPushButton::clicked, this, &QtGui::add_audio_file);
@@ -117,6 +162,17 @@ void QtGui::createDockWidgets() {
 
     // Connect for reordering
     connect(playlistWidget->model(), &QAbstractItemModel::rowsMoved, this, &QtGui::playlist_reordered);
+
+    // Connect playback buttons
+    connect(playButton, &QPushButton::clicked, this, &QtGui::play_audio);
+    connect(pauseButton, &QPushButton::clicked, this, &QtGui::pause_audio);
+    connect(stopButton, &QPushButton::clicked, this, &QtGui::stop_audio);
+    connect(nextButton, &QPushButton::clicked, this, &QtGui::next_audio);
+    connect(prevButton, &QPushButton::clicked, this, &QtGui::prev_audio);
+
+    // Connect preset buttons
+    connect(nextPresetButton, &QPushButton::clicked, this, &QtGui::next_preset);
+    connect(prevPresetButton, &QPushButton::clicked, this, &QtGui::prev_preset);
 }
 
 void QtGui::add_audio_file() {
@@ -162,6 +218,36 @@ void QtGui::playlist_reordered() {
         _config.audio_file_paths.push_back(playlistWidget->item(i)->text().toStdString());
     }
     _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
+}
+
+void QtGui::play_audio() {
+    _core.play_audio();
+}
+
+void QtGui::pause_audio() {
+    _core.pause_audio();
+}
+
+void QtGui::stop_audio() {
+    _core.stop_audio();
+}
+
+void QtGui::next_audio() {
+    _core.next_audio();
+}
+
+void QtGui::prev_audio() {
+    _core.prev_audio();
+}
+
+void QtGui::next_preset() {
+    _core.next_preset();
+    currentPresetLabel->setText(tr("Current Preset: ") + QString::fromStdString(_core.get_current_preset_name()));
+}
+
+void QtGui::prev_preset() {
+    _core.prev_preset();
+    currentPresetLabel->setText(tr("Current Preset: ") + QString::fromStdString(_core.get_current_preset_name()));
 }
 
 void QtGui::about() {

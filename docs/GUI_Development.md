@@ -15,16 +15,17 @@ This document tracks the progress of building the Aurora Visualizer's Qt-based G
 - [x] Create a dockable "Playlist" panel.
 - [x] Display the list of audio files from the config.
 - [x] Allow adding/removing files from the playlist.
-- [ ] Allow reordering files in the playlist.
-- [ ] Implement playback controls (Play, Pause, Stop, Next, Previous).
+- [x] Allow reordering files in the playlist.
+- [x] Implement playback controls (Play, Pause, Stop, Next, Previous).
 
 ## Phase 3: Visualizer Controls
 
-- [ ] Create a dockable "Visualizer" panel.
-- [ ] Display the current preset file.
-- [ ] Implement Next/Previous preset buttons.
+- [x] Create a dockable "Visualizer" panel.
+- [x] Display the current preset file.
+- [x] Implement Next/Previous preset buttons.
 - [ ] Implement a "Favorite" button to add the current preset to the favorites list.
 - [ ] Display the list of favorite presets.
+- [x] Add option to shuffle only favorite presets.
 
 ## Phase 4: Settings & Configuration
 
