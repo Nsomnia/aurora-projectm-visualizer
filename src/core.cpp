@@ -43,6 +43,12 @@ void Core::set_gui(std::unique_ptr<QtGui> gui) {
     _gui = std::move(gui);
 }
 
+void Core::set_audio_file_paths(const std::vector<std::string>& paths) {
+    _config.audio_file_paths = paths;
+    // Potentially reset current_audio_index or handle current playback if needed
+    // For now, the run loop will pick up the new list on the next iteration.
+}
+
 bool Core::init() {
     SDL_SetHint(SDL_HINT_AUDIO_INCLUDE_MONITORS, "1");
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {

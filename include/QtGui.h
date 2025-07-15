@@ -10,6 +10,7 @@ class QMainWindow;
 class QDockWidget;
 class QMenu;
 class QAction;
+class QListWidget;
 
 class QtGui : public QObject {
     Q_OBJECT
@@ -22,6 +23,9 @@ public:
 
 private slots:
     void about();
+    void add_audio_file();
+    void remove_selected_audio_file();
+    void playlist_reordered();
 
 private:
     void createMenus();
@@ -39,4 +43,6 @@ private:
 
     // Dock Widgets
     QDockWidget* controlsDock;
+    QDockWidget* playlistDock;
+    QListWidget* playlistWidget;
 };

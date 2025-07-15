@@ -24,6 +24,7 @@ public:
     void run();
     void cleanup();
     void set_gui(std::unique_ptr<QtGui> gui);
+    void set_audio_file_paths(const std::vector<std::string>& paths);
     Renderer& get_renderer() { return _renderer; }
 
 private:

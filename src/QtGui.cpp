@@ -12,6 +12,11 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QMessageBox>
+#include <QListWidget>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 QtGui::QtGui(Config& config, Core& core) : _config(config), _core(core) {}
 
@@ -20,7 +25,7 @@ QtGui::~QtGui() {}
 void QtGui::init() {
     _window = std::make_unique<QMainWindow>();
     _window->setWindowTitle("Aurora Visualizer");
-    _window->resize(1280, 720); // Give it a more standard window size
+    _window->resize(_config.width, _config.height); // Set window size from config
     _window->setCentralWidget(new QWidget()); // A dummy central widget
 
     createMenus();
@@ -76,6 +81,87 @@ void QtGui::createDockWidgets() {
 
     controlsDock->setWidget(controlsWidget);
     _window->addDockWidget(Qt::RightDockWidgetArea, controlsDock);
+
+    // Playlist Dock
+    playlistDock = new QDockWidget(tr("Playlist"), _window.get());
+    playlistDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    playlistWidget = new QListWidget(); // Initialize member variable
+    playlistWidget->setDragDropMode(QAbstractItemView::InternalMove);
+    playlistWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    playlistWidget->setDragEnabled(true);
+    playlistWidget->setAcceptDrops(true);
+    playlistWidget->setDropIndicatorShown(true);
+    for (const std::string& filePath : _config.audio_file_paths) {
+        playlistWidget->addItem(QString::fromStdString(filePath));
+    }
+    QVBoxLayout* playlistLayout = new QVBoxLayout();
+    playlistLayout->addWidget(playlistWidget);
+
+    // Add/Remove Buttons
+    QHBoxLayout* playlistButtonsLayout = new QHBoxLayout();
+    QPushButton* addFileButton = new QPushButton(tr("Add File"));
+    QPushButton* removeFileButton = new QPushButton(tr("Remove Selected"));
+    playlistButtonsLayout->addWidget(addFileButton);
+    playlistButtonsLayout->addWidget(removeFileButton);
+    playlistLayout->addLayout(playlistButtonsLayout);
+
+    QWidget* playlistContainerWidget = new QWidget();
+    playlistContainerWidget->setLayout(playlistLayout);
+    playlistDock->setWidget(playlistContainerWidget);
+    _window->addDockWidget(Qt::LeftDockWidgetArea, playlistDock);
+
+    // Connect buttons
+    connect(addFileButton, &QPushButton::clicked, this, &QtGui::add_audio_file);
+    connect(removeFileButton, &QPushButton::clicked, this, &QtGui::remove_selected_audio_file);
+
+    // Connect for reordering
+    connect(playlistWidget->model(), &QAbstractItemModel::rowsMoved, this, &QtGui::playlist_reordered);
+}
+
+void QtGui::add_audio_file() {
+    QStringList fileNames = QFileDialog::getOpenFileNames(
+        _window.get(),
+        tr("Add Audio Files"),
+        QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
+        tr("Audio Files (*.mp3 *.wav *.flac *.ogg);;All Files (*)")
+    );
+
+    if (!fileNames.isEmpty()) {
+        for (const QString& fileName : fileNames) {
+            _config.audio_file_paths.push_back(fileName.toStdString());
+            playlistWidget->addItem(fileName);
+        }
+        _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
+    }
+}
+
+void QtGui::remove_selected_audio_file() {
+    QList<QListWidgetItem*> selectedItems = playlistWidget->selectedItems();
+    if (selectedItems.isEmpty()) {
+        return;
+    }
+
+    // Remove from QListWidget and _config.audio_file_paths
+    // Iterate backwards to safely remove items while modifying the list
+    for (int i = selectedItems.size() - 1; i >= 0; --i) {
+        QListWidgetItem* item = selectedItems.at(i);
+        int row = playlistWidget->row(item);
+        if (row != -1) {
+            _config.audio_file_paths.erase(_config.audio_file_paths.begin() + row);
+            delete playlistWidget->takeItem(row); // takeItem removes and returns, then delete
+        }
+    }
+    _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
+}
+
+void QtGui::playlist_reordered() {
+    // Reconstruct _config.audio_file_paths based on the new order in playlistWidget
+    _config.audio_file_paths.clear();
+    for (int i = 0; i < playlistWidget->count(); ++i) {
+        _config.audio_file_paths.push_back(playlistWidget->item(i)->text().toStdString());
+    }
+    _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
 }
 
 void QtGui::about() {

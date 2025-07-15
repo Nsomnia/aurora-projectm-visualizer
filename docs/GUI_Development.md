@@ -12,9 +12,9 @@ This document tracks the progress of building the Aurora Visualizer's Qt-based G
 
 ## Phase 2: Playlist
 
-- [ ] Create a dockable "Playlist" panel.
-- [ ] Display the list of audio files from the config.
-- [ ] Allow adding/removing files from the playlist.
+- [x] Create a dockable "Playlist" panel.
+- [x] Display the list of audio files from the config.
+- [x] Allow adding/removing files from the playlist.
 - [ ] Allow reordering files in the playlist.
 - [ ] Implement playback controls (Play, Pause, Stop, Next, Previous).
 
