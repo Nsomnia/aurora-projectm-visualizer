@@ -155,3 +155,21 @@ glm::vec2 AnimationManager::getArtistPosition() const {
 float AnimationManager::getAlpha() const { return _alpha; }
 
 float AnimationManager::getBreathingScale() const { return _breathingScale; }
+
+void AnimationManager::render(const std::vector<std::string>& title_lines) {
+    if (!_textRenderer.is_initialized()) {
+        return;
+    }
+
+    std::vector<glm::vec2> title_positions = getTitlePositions(title_lines);
+    for (size_t i = 0; i < title_lines.size(); ++i) {
+        _textRenderer.renderText(title_lines[i], title_positions[i].x, title_positions[i].y,
+                                 getBreathingScale(), _config.songInfoColor, getAlpha(),
+                                 _config.show_border, _config.songInfoBorderColor, _config.songInfoBorderThickness);
+    }
+
+    glm::vec2 artist_position = getArtistPosition();
+    _textRenderer.renderText(_config.artistName, artist_position.x, artist_position.y,
+                             getBreathingScale(), _config.urlColor, getAlpha(),
+                             _config.show_border, _config.urlBorderColor, _config.urlBorderThickness);
+}

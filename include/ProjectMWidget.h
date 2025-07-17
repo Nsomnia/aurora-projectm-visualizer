@@ -4,6 +4,7 @@
 #include <QOpenGLFunctions>
 #include "Config.h"
 #include <projectM-4/projectM.h>
+#include "renderer.h"
 #include "TextRenderer.h"
 #include "TextManager.h"
 #include "AnimationManager.h"
@@ -27,4 +28,5 @@ private:
     TextRenderer& _text_renderer;
     TextManager& _text_manager;
     AnimationManager& _animation_manager;
+    Renderer _renderer;
 };

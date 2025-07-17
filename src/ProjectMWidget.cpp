@@ -7,7 +7,8 @@ ProjectMWidget::ProjectMWidget(Config& config, projectm_handle pM, TextRenderer&
       _pM(pM),
       _text_renderer(textRenderer),
       _text_manager(textManager),
-      _animation_manager(animationManager)
+      _animation_manager(animationManager),
+      _renderer(config)
 {
 }
 
@@ -18,7 +19,7 @@ ProjectMWidget::~ProjectMWidget()
 void ProjectMWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-    glewInit();
+    _renderer.init(this);
 }
 
 void ProjectMWidget::resizeGL(int w, int h)
@@ -30,8 +31,14 @@ void ProjectMWidget::resizeGL(int w, int h)
 
 void ProjectMWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    _renderer.begin();
     projectm_opengl_render_frame(_pM);
 
-    // This is where the text rendering would go
+    if (_config.show_title) {
+        std::vector<std::string> title_lines = _text_manager.split_text(_config.title, _config.width, 1.0f);
+        _animation_manager.render(title_lines);
+    }
+
+    _renderer.end();
+    _renderer.present();
 }

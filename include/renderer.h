@@ -13,9 +13,13 @@ public:
     ~Renderer();
 
     bool init(QOpenGLWidget* openGLWidget);
-    void render(projectm_handle pM);
-    std::vector<unsigned char> get_framebuffer_pixels(int width, int height);
     void cleanup();
+
+    void begin();
+    void end();
+    void present();
+    GLuint fboTexture() const { return _fbo_texture; }
+
 
 private:
     Config& _config;
@@ -23,7 +27,10 @@ private:
     GLuint _fbo;
     GLuint _fbo_texture;
     GLuint _rbo;
+    GLuint _quad_vao;
+    GLuint _quad_vbo;
+    GLuint _shader_program;
 
     bool create_fbo(int width, int height);
-    void render_to_fbo(projectm_handle pM);
+    bool create_shader();
 };

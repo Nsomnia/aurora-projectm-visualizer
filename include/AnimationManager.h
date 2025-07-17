@@ -20,6 +20,7 @@ public:
 
     void reset(const std::vector<std::string>& title_lines);
     void update(double music_len, double current_time, const std::vector<std::string>& title_lines);
+    void render(const std::vector<std::string>& title_lines);
 
     std::vector<glm::vec2> getTitlePositions(const std::vector<std::string>& title_lines) const;
     glm::vec2 getArtistPosition() const;
