@@ -1,0 +1,28 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ "main", "features/jules-and-gemini-dev-session" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build libgl1-mesa-dev libglew-dev libglm-dev libfreetype6-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
+
+    - name: Configure CMake
+      run: cmake --preset default
+
+    - name: Build
+      run: cmake --build --preset default
+
+    - name: Run tests
+      run: ctest --preset default

@@ -33,7 +33,7 @@ public:
 
 private:
     bool initShaders();
-    void renderTextPass(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, const glm::vec3& border_color, float border_thickness);
+    void renderTextPass(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, bool is_border);
 
     GLuint _shaderProgram;
     GLuint _vao, _vbo;

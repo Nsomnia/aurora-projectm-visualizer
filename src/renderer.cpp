@@ -2,26 +2,24 @@
 #include "utils/Logger.h"
 #include <stdexcept>
 #include <vector>
+#include <QOpenGLWidget>
 
-Renderer::Renderer() : _context(nullptr), _fbo(0), _fbo_texture(0), _rbo(0) {}
+Renderer::Renderer(Config& config) : _config(config), _gl_widget(nullptr), _fbo(0), _fbo_texture(0), _rbo(0) {}
 
 Renderer::~Renderer() {
     cleanup();
 }
 
-bool Renderer::init(Config& config) {
-    _context = SDL_GL_CreateContext(nullptr);
-    if (!_context) {
-        Logger::error("Failed to create OpenGL context: " + std::string(SDL_GetError()));
-        return false;
-    }
+bool Renderer::init(QOpenGLWidget* openGLWidget) {
+    _gl_widget = openGLWidget;
+    _gl_widget->makeCurrent();
 
     if (glewInit() != GLEW_OK) {
         Logger::error("GLEW initialization failed.");
         return false;
     }
 
-    glViewport(0, 0, config.width, config.height);
+    glViewport(0, 0, _config.width, _config.height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -29,13 +27,14 @@ bool Renderer::init(Config& config) {
         return false;
     }
 
-    return create_fbo(config.width, config.height);
+    return create_fbo(_config.width, _config.height);
 }
 
 void Renderer::render(projectm_handle pM) {
-    if (!_context) {
+    if (!_gl_widget) {
         return;
     }
+    _gl_widget->makeCurrent();
     render_to_fbo(pM);
 }
 

@@ -8,13 +8,14 @@ class PresetManager {
 public:
     PresetManager(const Config& config);
 
-    void load_presets();
-    std::string get_next_preset();
-    std::string get_prev_preset();
+    void load_presets(projectm_handle pM);
+    std::string get_next_preset(projectm_handle pM);
+    std::string get_prev_preset(projectm_handle pM);
     std::string get_current_preset() const;
 
     void mark_current_preset_as_broken();
     void toggle_favorite_current_preset();
+    bool is_current_preset_broken();
 
 
 private:

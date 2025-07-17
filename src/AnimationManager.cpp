@@ -69,46 +69,29 @@ void AnimationManager::update(double music_len, double current_time, const std::
     // State transitions
     switch (_currentState) {
         case AnimationState::BOUNCING:
-            if (current_time >= _config.pre_fade_delay) {
-                _currentState = AnimationState::FADING_TO_TRANSPARENT;
+            if (current_time >= _config.bounce_duration) {
+                _currentState = AnimationState::FADING_OUT;
             }
             updateBouncing(deltaTime, title_lines);
             break;
-        case AnimationState::FADING_TO_TRANSPARENT:
+        case AnimationState::FADING_OUT:
             {
-                float fade_progress = (current_time - _config.pre_fade_delay) / _config.fade_to_min_duration;
-                _alpha = 1.0f - fade_progress * (1.0f - _config.minFadeTransparency);
-                _alpha = std::max(_config.minFadeTransparency, _alpha);
-                if (_alpha <= _config.minFadeTransparency) {
-                    _currentState = AnimationState::HOLDING_TRANSPARENT;
+                float fade_progress = (current_time - _config.bounce_duration) / _config.transitionTime;
+                _alpha = 1.0f - fade_progress;
+                if (_alpha <= 0.0f) {
+                    _currentState = AnimationState::FADING_IN;
                 }
                 updateBouncing(deltaTime, title_lines);
             }
             break;
-        case AnimationState::HOLDING_TRANSPARENT:
-            if (time_until_end <= _config.transitionTime) {
-                _currentState = AnimationState::FADING_TO_OPAQUE;
-            }
-            updateBouncing(deltaTime, title_lines);
-            break;
-        case AnimationState::FADING_TO_OPAQUE:
+        case AnimationState::FADING_IN:
             {
-                float fade_progress = (_config.transitionTime - time_until_end) / _config.transitionTime;
-                _alpha = _config.minFadeTransparency + fade_progress * (1.0f - _config.minFadeTransparency);
-                _alpha = std::min(1.0f, _alpha);
+                float fade_progress = (current_time - (_config.bounce_duration + _config.transitionTime)) / _config.transitionTime;
+                _alpha = fade_progress;
                 if (_alpha >= 1.0f) {
-                    _currentState = AnimationState::RETURNING_TO_CENTER;
+                    _currentState = AnimationState::FINISHED;
                 }
                 updateBouncing(deltaTime, title_lines);
-            }
-            break;
-        case AnimationState::RETURNING_TO_CENTER:
-            updateReturning(deltaTime);
-            if (glm::distance(_titleBlockPosition, _initialTitleBlockPosition) < 1.0f &&
-                glm::distance(_artistPosition, _initialArtistPosition) < 1.0f) {
-                _currentState = AnimationState::FINISHED;
-                _titleBlockPosition = _initialTitleBlockPosition;
-                _artistPosition = _initialArtistPosition;
             }
             break;
         case AnimationState::FINISHED:
@@ -120,6 +103,7 @@ void AnimationManager::update(double music_len, double current_time, const std::
 
 
 void AnimationManager::updateBouncing(float deltaTime, const std::vector<std::string>& title_lines) {
+    // Single update for the entire text block
     _titleBlockPosition += _titleBlockVelocity * deltaTime;
 
     float block_width = 0;
@@ -140,22 +124,12 @@ void AnimationManager::updateBouncing(float deltaTime, const std::vector<std::st
         _titleBlockPosition.y = std::max(half_block_height, std::min(_titleBlockPosition.y, (float)_config.height - half_block_height));
     }
 
-
-    _artistPosition += _artistVelocity * deltaTime;
+    // Artist position is now relative to the title block
     float artistWidth = _textRenderer.getTextWidth(_config.artistName, 1.0f);
-    float artistHeight = _config.songInfoFontSize; // Assuming font size is the height for artist text
-    float half_artist_height = artistHeight / 2.0f;
-
-    if (_artistPosition.x < 0 || _artistPosition.x + artistWidth > _config.width) {
-        _artistVelocity.x = -_artistVelocity.x;
-        _artistVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
-        _artistPosition.x = std::max(0.0f, std::min(_artistPosition.x, _config.width - artistWidth));
-    }
-    if (_artistPosition.y - half_artist_height < 0 || _artistPosition.y + half_artist_height > _config.height) {
-        _artistVelocity.y = -_artistVelocity.y;
-        _artistVelocity += glm::linearRand(glm::vec2(-_config.bounce_randomness, -_config.bounce_randomness), glm::vec2(_config.bounce_randomness, _config.bounce_randomness));
-        _artistPosition.y = std::max(half_artist_height, std::min(_artistPosition.y, (float)_config.height - half_artist_height));
-    }
+    _artistPosition = {
+        _titleBlockPosition.x + (block_width - artistWidth) / 2.0f,
+        _titleBlockPosition.y - block_height - _config.songInfoFontSize
+    };
 }
 
 void AnimationManager::updateReturning(float deltaTime) {

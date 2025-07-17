@@ -24,15 +24,17 @@ out vec4 color;
 uniform sampler2D text;
 uniform vec3 textColor;
 uniform float alpha;
-uniform vec3 borderColor;
-uniform float borderThickness;
+uniform bool isBorder;
 void main() {
     float distance = texture(text, TexCoords).r;
     float smoothWidth = fwidth(distance);
     float outline = smoothstep(0.5 - smoothWidth, 0.5 + smoothWidth, distance);
-    float border = smoothstep(0.5 - borderThickness - smoothWidth, 0.5 - borderThickness + smoothWidth, distance);
-    vec4 blendedColor = mix(vec4(borderColor, alpha), vec4(textColor, alpha), outline);
-    color = vec4(blendedColor.rgb, alpha * (outline + (1.0 - outline) * border));
+
+    if (isBorder) {
+        color = vec4(textColor, alpha * outline);
+    } else {
+        color = vec4(textColor, alpha * outline);
+    }
 }
 )glsl";
 
@@ -100,9 +102,13 @@ void TextRenderer::setProjection(int width, int height) {
 }
 
 void TextRenderer::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, bool show_border, const glm::vec3& border_color, float border_thickness) {
-    // NOTE: The contrast adjustment logic was causing heap corruption and has been disabled.
-    float final_border_thickness = show_border ? border_thickness : 0.0f;
-    renderTextPass(text, x, y, scale, color, alpha, border_color, final_border_thickness);
+    if (show_border) {
+        renderTextPass(text, x - border_thickness, y, scale, border_color, alpha, true);
+        renderTextPass(text, x + border_thickness, y, scale, border_color, alpha, true);
+        renderTextPass(text, x, y - border_thickness, scale, border_color, alpha, true);
+        renderTextPass(text, x, y + border_thickness, scale, border_color, alpha, true);
+    }
+    renderTextPass(text, x, y, scale, color, alpha, false);
 }
 
 glm::vec4 TextRenderer::getTextBounds(const std::string& text, float x, float y, float scale) {
@@ -126,14 +132,13 @@ glm::vec4 TextRenderer::getTextBounds(const std::string& text, float x, float y,
     return glm::vec4(min_x, min_y, max_x - min_x, max_y - min_y);
 }
 
-void TextRenderer::renderTextPass(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, const glm::vec3& border_color, float border_thickness) {
+void TextRenderer::renderTextPass(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, bool is_border) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(_shaderProgram);
     glUniform3f(glGetUniformLocation(_shaderProgram, "textColor"), color.x, color.y, color.z);
     glUniform1f(glGetUniformLocation(_shaderProgram, "alpha"), alpha);
-    glUniform3f(glGetUniformLocation(_shaderProgram, "borderColor"), border_color.x, border_color.y, border_color.z);
-    glUniform1f(glGetUniformLocation(_shaderProgram, "borderThickness"), border_thickness);
+    glUniform1i(glGetUniformLocation(_shaderProgram, "isBorder"), is_border);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(_vao);
 

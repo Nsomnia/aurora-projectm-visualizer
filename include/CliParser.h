@@ -1,12 +1,17 @@
 #pragma once
 
 #include "Config.h"
-#include <string>
+
+namespace CLI {
+    class App;
+}
 
 class CliParser {
 public:
-    static bool parse(Config& config, int argc, char* argv[]);
+    CliParser();
+    void parse(int argc, char** argv, Config& config);
+    void add_options(CLI::App& app, Config& config);
 
 private:
-    static void display_help(const std::string& program_name);
+    std::shared_ptr<CLI::App> app;
 };

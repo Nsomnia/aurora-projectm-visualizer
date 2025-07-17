@@ -3,21 +3,23 @@
 #include "Config.h"
 #include <projectM-4/projectM.h>
 #include <GL/glew.h>
-#include <SDL.h>
 #include <vector>
+
+class QOpenGLWidget;
 
 class Renderer {
 public:
-    Renderer();
+    Renderer(Config& config);
     ~Renderer();
 
-    bool init(Config& config);
+    bool init(QOpenGLWidget* openGLWidget);
     void render(projectm_handle pM);
     std::vector<unsigned char> get_framebuffer_pixels(int width, int height);
     void cleanup();
 
 private:
-    SDL_GLContext _context;
+    Config& _config;
+    QOpenGLWidget* _gl_widget;
     GLuint _fbo;
     GLuint _fbo_texture;
     GLuint _rbo;

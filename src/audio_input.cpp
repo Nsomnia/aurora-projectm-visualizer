@@ -2,6 +2,8 @@
 #include "audio_input.h"
 #include "utils/Logger.h"
 #include <vector>
+#include <taglib/tag.h>
+#include <taglib/fileref.h>
 
 AudioInput::AudioInput(Config& config) : _config(config), _music(nullptr) {
     _audio_data.pM = nullptr;
@@ -25,6 +27,22 @@ void AudioInput::load_and_play_music(const std::string& music_file) {
         Mix_FreeMusic(_music);
         _music = nullptr;
     }
+
+    TagLib::FileRef f(music_file.c_str());
+    if (!f.isNull() && f.tag()) {
+        TagLib::Tag *tag = f.tag();
+        _config.songTitle = tag->title().toCString(true);
+        _config.artistName = tag->artist().toCString(true);
+    }
+
+    if (_config.songTitle.empty()) {
+        _config.songTitle = sanitize_filename(music_file);
+    }
+    if (_config.artistName.empty()) {
+        _config.artistName = "Unknown Artist";
+    }
+
+
     _music = Mix_LoadMUS(music_file.c_str());
     if (!_music) {
         Logger::error("Failed to load music: " + music_file + " - " + std::string(Mix_GetError()));

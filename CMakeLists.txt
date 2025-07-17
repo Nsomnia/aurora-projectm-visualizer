@@ -39,6 +39,18 @@ CPMAddPackage(
     VERSION 3.4.0
 )
 
+CPMAddPackage(
+    NAME CLI11
+    GITHUB_REPOSITORY CLIUtils/CLI11
+    VERSION 2.3.2
+)
+
+CPMAddPackage(
+    NAME taglib
+    GITHUB_REPOSITORY taglib/taglib
+    VERSION v1.12
+)
+
 # --- External Project: projectM ---
 set(PROJECTM_INSTALL_DIR ${CMAKE_SOURCE_DIR}/deps/projectm_install)
 set(PROJECTM_LIB_PATH ${PROJECTM_INSTALL_DIR}/lib/libprojectM-4.so) # Correct path for v4
@@ -75,12 +87,31 @@ else()
 endif()
 
 # --- Source Files ---
-file(GLOB_RECURSE APP_SOURCE_FILES "src/*.cpp")
+set(APP_SOURCE_FILES
+    src/main.cpp
+    src/MainWindow.cpp
+    src/ProjectMWidget.cpp
+    src/PlaylistWidget.cpp
+    src/SettingsWidget.cpp
+    src/AboutDialog.cpp
+    src/ConfigLoader.cpp
+    src/CliParser.cpp
+    src/renderer.cpp
+    src/event_handler.cpp
+    src/preset_manager.cpp
+    src/AnimationManager.cpp
+    src/TextRenderer.cpp
+    src/TextManager.cpp
+    src/VideoExporter.cpp
+    src/audio_input.cpp
+    src/utils/Logger.cpp
+    src/utils/common.cpp
+)
 
 # --- Qt MOC Generation ---
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-qt6_wrap_cpp(MOC_SOURCES include/QtGui.h include/QtOpenGLWidget.h)
+qt6_wrap_cpp(MOC_SOURCES include/MainWindow.h include/ProjectMWidget.h include/PlaylistWidget.h include/SettingsWidget.h include/AboutDialog.h include/event_handler.h)
 
 # --- Executable Target ---
 add_executable(AuroraVisualizer ${APP_SOURCE_FILES} ${MOC_SOURCES})
@@ -97,6 +128,7 @@ target_include_directories(AuroraVisualizer PRIVATE
 target_link_libraries(AuroraVisualizer PRIVATE
     projectM_lib
     tomlplusplus::tomlplusplus
+    CLI11::CLI11
     Qt6::Widgets Qt6::OpenGLWidgets
     ${FREETYPE_LIBRARIES}
     OpenGL::GL GLEW::GLEW glm::glm

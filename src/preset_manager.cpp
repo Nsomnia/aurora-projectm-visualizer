@@ -13,7 +13,7 @@ const int MAX_HISTORY_SIZE = 50; // Maximum number of presets to keep in history
 
 PresetManager::PresetManager(const Config& config) : _config(config) {}
 
-void PresetManager::load_presets() {
+void PresetManager::load_presets(projectm_handle pM) {
     _all_presets.clear();
     _favorite_presets.clear();
     _history.clear();
@@ -42,13 +42,13 @@ void PresetManager::load_presets() {
 
     // Select an initial random preset if available
     if (!_all_presets.empty()) {
-        std::string initial_preset = get_random_preset(_all_presets);
+        std::string initial_preset = get_next_preset(pM);
         _history.push_back(initial_preset);
         _history_index = 0;
     }
 }
 
-std::string PresetManager::get_next_preset() {
+std::string PresetManager::get_next_preset(projectm_handle pM) {
     if (_all_presets.empty()) {
         return "";
     }
@@ -58,7 +58,11 @@ std::string PresetManager::get_next_preset() {
         _history.erase(_history.begin() + _history_index + 1, _history.end());
     }
 
-    std::string preset = get_random_preset(_all_presets);
+    std::string preset;
+    do {
+        preset = get_random_preset(_all_presets);
+    } while (!projectm_load_preset_file(pM, preset.c_str(), true));
+
     _history.push_back(preset);
     _history_index++;
 
@@ -70,12 +74,21 @@ std::string PresetManager::get_next_preset() {
     return preset;
 }
 
-std::string PresetManager::get_prev_preset() {
+std::string PresetManager::get_prev_preset(projectm_handle pM) {
     if (_history_index > 0) { // Can go back if not at the very first element
         _history_index--;
-        return _history[_history_index];
+        std::string preset = _history[_history_index];
+        if (!projectm_load_preset_file(pM, preset.c_str(), true)) {
+            mark_current_preset_as_broken();
+            return get_prev_preset(pM);
+        }
+        return preset;
     }
     return ""; // Cannot go back further
+}
+
+bool PresetManager::is_current_preset_broken() {
+    return false;
 }
 
 std::string PresetManager::get_current_preset() const {

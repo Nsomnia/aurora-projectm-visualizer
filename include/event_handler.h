@@ -5,23 +5,25 @@
 #include "AnimationManager.h"
 #include "TextRenderer.h"
 #include "TextManager.h"
-#include <SDL.h>
-#include <SDL_mixer.h>
 #include <projectM-4/projectM.h>
-#include <string>
-#include <vector>
+#include <QObject>
+#include <projectM-4/projectM.h>
+#include <QKeyEvent>
 
-class EventHandler {
+class EventHandler : public QObject {
+    Q_OBJECT
+
 public:
-    EventHandler(Config& config, PresetManager& presetManager, AnimationManager& animationManager, TextRenderer& textRenderer, TextManager& textManager);
-    ~EventHandler();
+    EventHandler(Config& config, PresetManager& presetManager, AnimationManager& animationManager, TextRenderer& textRenderer, TextManager& textManager, projectm_handle pM);
 
-    void handle_event(const SDL_Event& event, bool& g_quit, int& current_audio_index, double& time_since_last_shuffle, std::string& currentPreset, projectm_handle pM, std::vector<std::string>& titleLines);
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     Config& _config;
-    PresetManager& _presetManager;
-    AnimationManager& _animationManager;
-    TextRenderer& _textRenderer;
-    TextManager& _textManager;
+    PresetManager& _preset_manager;
+    AnimationManager& _animation_manager;
+    TextRenderer& _text_renderer;
+    TextManager& _text_manager;
+    projectm_handle _pM;
 };

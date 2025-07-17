@@ -85,6 +85,34 @@ struct Config {
     // Other
     bool show_version = false;
     bool verbose_logging = false;
+
+    // CLI only
+    std::string songInfoFontColorStr;
+    std::string urlFontColorStr;
+    std::string songInfoBorderColorStr;
+    std::string urlBorderColorStr;
+    std::string audio_input_mode_str;
+    std::string next_preset_key_str;
+    std::string prev_preset_key_str;
+    std::string mark_broken_preset_key_str;
+    std::string favorite_preset_key_str;
+
+    void postParse() {
+        if (!songInfoFontColorStr.empty()) songInfoFontColor = hexToVec3(songInfoFontColorStr);
+        if (!urlFontColorStr.empty()) urlFontColor = hexToVec3(urlFontColorStr);
+        if (!songInfoBorderColorStr.empty()) songInfoBorderColor = hexToVec3(songInfoBorderColorStr);
+        if (!urlBorderColorStr.empty()) urlBorderColor = hexToVec3(urlBorderColorStr);
+
+        if (audio_input_mode_str == "SystemDefault") audio_input_mode = AudioInputMode::SystemDefault;
+        else if (audio_input_mode_str == "PipeWire") audio_input_mode = AudioInputMode::PipeWire;
+        else if (audio_input_mode_str == "PulseAudio") audio_input_mode = AudioInputMode::PulseAudio;
+        else if (audio_input_mode_str == "File") audio_input_mode = AudioInputMode::File;
+
+        if (!next_preset_key_str.empty()) next_preset_key = QKeySequence(next_preset_key_str);
+        if (!prev_preset_key_str.empty()) prev_preset_key = QKeySequence(prev_preset_key_str);
+        if (!mark_broken_preset_key_str.empty()) mark_broken_preset_key = QKeySequence(mark_broken_preset_key_str);
+        if (!favorite_preset_key_str.empty()) favorite_preset_key = QKeySequence(favorite_preset_key_str);
+    }
 };
 
 // Utility function to convert hex color string to glm::vec3

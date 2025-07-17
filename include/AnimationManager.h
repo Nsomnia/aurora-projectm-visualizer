@@ -8,12 +8,9 @@
 #include <GL/glew.h>
 
 enum class AnimationState {
-    INITIAL_DELAY,
     BOUNCING,
-    FADING_TO_TRANSPARENT,
-    HOLDING_TRANSPARENT,
-    FADING_TO_OPAQUE,
-    RETURNING_TO_CENTER,
+    FADING_OUT,
+    FADING_IN,
     FINISHED
 };
 
