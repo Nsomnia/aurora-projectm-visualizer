@@ -124,7 +124,7 @@ video_framerate = 30
 # The FFmpeg command template for recording.
 # Placeholders: {WIDTH}, {HEIGHT}, {FPS}, {AUDIO_FILE_PATH}, {OUTPUT_PATH}
 # Note: The existing complex command is preserved from your previous file.
-ffmpeg_command = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -i - -i ""{AUDIO_FILE_PATH}"" -c:v libx265 -crf 32 -c:a copy -r {FPS} -shortest -preset slow -threads 0 -movflags +faststart {OUTPUT_PATH}"
+ffmpeg_command = 'ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -i - -i {AUDIO_FILE_PATH} -c:v libx265 -crf 32 -c:a copy -r {FPS} -shortest -preset slow -threads 0 -movflags +faststart {OUTPUT_PATH}'
 
 
 # --- Audio ---
