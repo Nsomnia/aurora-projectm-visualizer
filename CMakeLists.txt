@@ -41,23 +41,31 @@ CPMAddPackage(
 
 # --- External Project: projectM ---
 set(PROJECTM_INSTALL_DIR ${CMAKE_SOURCE_DIR}/deps/projectm_install)
-set(PROJECTM_LIB_PATH ${PROJECTM_INSTALL_DIR}/lib/libprojectM.so.3)
+set(PROJECTM_LIB_PATH ${PROJECTM_INSTALL_DIR}/lib/libprojectM-4.so) # Correct path for v4
 add_library(projectM_lib SHARED IMPORTED GLOBAL)
 set_property(TARGET projectM_lib PROPERTY IMPORTED_LOCATION "${PROJECTM_LIB_PATH}")
 set_property(TARGET projectM_lib PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PROJECTM_INSTALL_DIR}/include")
 
 if(NOT EXISTS "${PROJECTM_LIB_PATH}")
-    message(STATUS "projectM library not found. Building from source (v3.1.12). This may take a few minutes...")
+    message(STATUS "projectM library not found. Building from source (v4.1.0). This may take a few minutes...")
     include(ExternalProject)
     ExternalProject_Add(
         projectM_external
         GIT_REPOSITORY https://github.com/projectM-visualizer/projectm.git
-        GIT_TAG v3.1.12
+        GIT_TAG v4.1.0
         GIT_SHALLOW TRUE
         SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/projectm_src"
         BINARY_DIR "${CMAKE_SOURCE_DIR}/deps/projectm_build"
         INSTALL_DIR "${PROJECTM_INSTALL_DIR}"
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_SHARED_LIBS=ON -DPROJECTM_ENABLE_QT5=OFF -DPROJECTM_ENABLE_TESTS=OFF
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DBUILD_SHARED_LIBS=ON
+            -DPROJECTM_ENABLE_QT5=OFF
+            -DPROJECTM_ENABLE_TESTS=OFF
+            -DPROJECTM_BUILD_SDL_UI=OFF
+            -DPROJECTM_BUILD_GLM_EXTERNAL=OFF
+            -DPROJECTM_BUILD_PROJECTM_EVAL_EXTERNAL=OFF
         BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>
         INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>
     )

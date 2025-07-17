@@ -50,4 +50,4 @@ ehthumbs.db
 Thumbs.db
 
 # User additions
-videos/
+videos/.env

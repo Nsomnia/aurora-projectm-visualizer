@@ -18,35 +18,42 @@ This project is under active development, with a focus on robust performance, a 
     *   **Broken Preset Management:** Mark problematic presets to move them to a separate directory, preventing them from being loaded again.
     *   **Configurable Keybindings:** Customize keyboard shortcuts for all preset management actions.
 
-## Building from Source
+## Building and Git Workflow
 
 This project uses CMake and requires a C++17 compiler. Dependencies are managed automatically.
 
-1.  **Prerequisites:**
-    *   A C++ compiler (like GCC or Clang)
-    *   CMake (version 3.20 or higher)
-    *   Git
-    *   Development libraries for Qt6, OpenGL, GLEW, GLM, Freetype, and FFmpeg.
-        *   On Debian/Ubuntu: `sudo apt-get install build-essential cmake git qt6-base-dev libgl1-mesa-dev libglew-dev libglm-dev libfreetype6-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev`
+To simplify the build process and manage Git operations, use the `build_and_git.sh` script.
 
-2.  **Configure and Build:**
-    ```bash
-    cmake -B build
-    cmake --build build
-    ```
-    The executable will be located at `build/bin/AuroraVisualizer`.
+### Usage of `build_and_git.sh`
 
-3.  **Run:**
-    ```bash
-    ./build/bin/AuroraVisualizer
-    ```
+```bash
+./build_and_git.sh [command]
+```
+
+**Commands:**
+
+*   `compile`: Configure and build the project.
+*   `git`: Guide through basic Git workflow (status, add, commit, push).
+*   `-h, --help, --usage`: Display detailed help message and Git explanation.
+
+**Example:**
+
+To compile the project:
+```bash
+./build_and_git.sh compile
+```
+
+To manage your Git changes:
+```bash
+./build_and_git.sh git
+```
 
 ## Usage
 
 Run the visualizer from the command line, optionally providing one or more audio files. If no audio files are provided, the visualizer will run in a "listen" mode, reacting to system audio input (if configured).
 
 ```bash
-./bin/visualizer [options] <audio_file_1> <audio_file_2> ...
+./build/bin/AuroraVisualizer [options] <audio_file_1> <audio_file_2> ...
 ```
 
 ### Command-Line Options
@@ -116,6 +123,10 @@ Command-line arguments take precedence over settings in `config.toml`.
 ### Configuration File (`config/default.toml`)
 
 The primary configuration is managed through `config/default.toml`. This file provides default values for all configurable parameters. When the application starts, it first attempts to load `~/.config/aurora-visualizer/config.toml`. If that file doesn't exist, it falls back to `config/default.toml` located relative to the executable. Command-line arguments always override settings from any loaded TOML file.
+
+**Important Note on Configuration Structure:**
+
+For settings to be correctly parsed from `config/default.toml`, they must be organized under specific TOML sections (tables) as expected by the application. For example, `width`, `height`, and `fps` must be under a `[display]` section, `font_path` and `song_info_font_size` under `[text]`, and so on. Refer to `config/default.toml` for the correct sectioning.
 
 **Example `config/default.toml` snippet for FFmpeg:**
 

@@ -2,18 +2,27 @@
 # Command-line arguments will override these settings.
 
 # --- GEMINI NOTES ---
-# Url breathing effect is way more prominent than the title and artist text, should be separate maybe?
-# favorites.txt is saved to the current working directory instead of 
-# favorites.txt should be able to be toggled on/off persistantly
-# any settings the end user may want to keep on inbetween songs (audio files) should be able to be saved persistantly
-# songs that dont play through a large percentage of their total length should not be kept and should use /tmp to take advantage of zram/zswap if end user uses it
-# the shadows are blocky and totally useless
-# the text gets aliased and jagged very easily, especially when "breathing". Need to  antialias or find a library to use for font rendering in a separate render buffer.
+# [ ] Url breathing effect is way more prominent than the title and artist text, should be separate maybe?
+# [ ] favorites.txt is saved to the current working directory instead of 
+# [ ] favorites.txt should be able to be toggled on/off persistantly
+# [ ] any settings the end user may want to keep on inbetween songs (audio files) should be able to be saved persistantly
+# [ ] songs that dont play through a large percentage of their total length should not be kept and should use /tmp to take advantage of zram/zswap if end user uses it
+# [ ] the shadows are blocky and totally useless
+# [ ] the text gets aliased and jagged very easily, especially when "breathing". Need to  antialias or find a library to use for font rendering in a separate render buffer.
 
 # --- USER NOTES ---
-# video playback WAS fixed in a version before the git debocal so gotta test when qt version works again
+# [ ] video playback WAS fixed in a version before the git debocal so gotta test when qt version works again
+
+# --- Fixed Issues ---
+# [x] Window resolution was not parsed properly from config file.
+# [x] Text & Font settings were not parsed from config file.
+# [x] Text Animation settings were not parsed from config file.
+# [x] Presets settings were not parsed from config file.
+# [x] Recording settings were not parsed from config file.
+# [x] Audio settings were not parsed from config file.
 
 # --- Display & Performance ---
+[display]
 # Window resolution THIS ISNT BE PARSED PROPERLY, IT WORKS VIA COMMAND LINE OPTIONS ONLY.
 width = 540
 height = 720
@@ -21,6 +30,7 @@ height = 720
 fps = 30
 
 # --- Text & Font ---
+[text]
 # Path to the TTF or OTF font file for all text rendering.
 font_path = "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"
 # Font size for the song title and artist name.
@@ -39,9 +49,6 @@ url_border_color = "000000"
 song_info_border_thickness = 0.0
 # Thickness of the URL text border. Set to 0.0 to disable. NOTE BORDERS JUST BECOME GEOMETIC OR CUBE BLOCKS VERY QUICKLY. LOOKS BAD. DOES NOT SEEM TO BE A SMOOTH BORDER BUT RATHER GEOMETIC SHARP SHAPES
 url_border_thickness = 0.0
-
-
-# --- Text Content & Visibility ---
 # Text to display for the artist name.
 artist_name = "DJ STEEL"
 # Text to display for the URL.
@@ -55,6 +62,7 @@ show_text_border = true
 
 
 # --- Text Animation ---
+[animation]
 # Master switch for all text animations.
 text_animation_enabled = true
 # Time in seconds for the text to fade out at the end of the song. NOTE: IS IT FADING? DONT WANT FADE. WANT FRAME  1 AND LAST FRAME TO BE AS IDENTICAL AS POSSIBLE SO THE STARTING TRANSITION SHOULD BE THE INVERSE OF THE STARTING TRANSITION
@@ -81,6 +89,7 @@ breathing_effect_speed = 0.9
 
 
 # --- Presets ---
+[presets]
 # Directory where .milk preset files are located. THE /USR/SHARE/PROJECTM/PRESETS IS STILL A DEFAULT AND THIS IS ADDITONAL DIRECTORY  SECONDARY RIGHT? ABSOLUTE PATH?
 presets_directory = "/usr/share/projectM/presets"
 # File to store the list of favorite presets.
@@ -105,6 +114,7 @@ use_default_projectm_visualizer = false
 
 
 # --- Recording ---
+[recording]
 # Enable or disable video recording. ADD "BY DEFAULT I.E. FOR SCRIPTING FOR SHORT COMMAND LINES"?
 enable_recording = false
 # Directory to save recorded videos.
@@ -118,6 +128,7 @@ ffmpeg_command = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -i - 
 
 
 # --- Audio ---
+[audio]
 # Audio input mode. Options: "SystemDefault", "PipeWire", "PulseAudio", "File"
 audio_input_mode = "PipeWire"
 # Name of the virtual PipeWire sink to create when using the PipeWire audio input mode.
