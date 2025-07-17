@@ -1,11 +1,10 @@
 #pragma once
 
-#include <QObject>
+#include <QMainWindow>
 #include <memory>
 
 // Forward declarations
 class Core;
-class QMainWindow;
 class QDockWidget;
 class QMenu;
 class QAction;
@@ -14,15 +13,12 @@ class QLabel;
 class QtOpenGLWidget;
 class Config;
 
-class QtGui : public QObject {
+class QtGui : public QMainWindow {
     Q_OBJECT
 
 public:
-    QtGui(Config& config, Core& core);
+    QtGui(Config& config, Core& core, QWidget* parent = nullptr);
     ~QtGui();
-
-    void init();
-    QWidget* getVisualizerWidget() const;
 
 private slots:
     void about();
@@ -43,19 +39,18 @@ private:
 
     Config& _config;
     Core& _core;
-    std::unique_ptr<QMainWindow> _window;
-    QtOpenGLWidget* visualizerWidget; // Changed type
+    QtOpenGLWidget* _visualizer_widget;
 
     // Menu Bar
-    QMenu* fileMenu;
-    QMenu* viewMenu;
-    QMenu* helpMenu;
-    QAction* quitAction;
-    QAction* aboutAction;
+    QMenu* _file_menu;
+    QMenu* _view_menu;
+    QMenu* _help_menu;
+    QAction* _quit_action;
+    QAction* _about_action;
 
     // Dock Widgets
-    QDockWidget* playlistDock;
-    QDockWidget* controlsDock;
-    QListWidget* playlistWidget;
-    QLabel* currentPresetLabel;
+    QDockWidget* _playlist_dock;
+    QDockWidget* _controls_dock;
+    QListWidget* _playlist_widget;
+    QLabel* _current_preset_label;
 };

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include <SDL.h>
+#include <QKeySequence>
 
 // Define APP_VERSION if not already defined (e.g., by CMake)
 #ifndef APP_VERSION
@@ -64,10 +64,10 @@ struct Config {
     double presetBlendTime = 2.7;
     std::string preset_list_file;
     std::string broken_preset_directory = "broken_presets/";
-    SDL_Keycode next_preset_key = SDLK_n;
-    SDL_Keycode prev_preset_key = SDLK_p;
-    SDL_Keycode mark_broken_preset_key = SDLK_b;
-    SDL_Keycode favorite_preset_key = SDLK_f;
+    QKeySequence next_preset_key = QKeySequence(Qt::Key_N);
+    QKeySequence prev_preset_key = QKeySequence(Qt::Key_P);
+    QKeySequence mark_broken_preset_key = QKeySequence(Qt::Key_B);
+    QKeySequence favorite_preset_key = QKeySequence(Qt::Key_F);
     bool use_default_projectm_visualizer = false;
     bool favorites_only_shuffle = false;
 

@@ -6,9 +6,9 @@
 #include "utils/Logger.h"
 #include "QtGui.h"
 #include <QApplication>
+#include <QMainWindow>
 #include <csignal>
 #include <iostream>
-#include <thread>
 
 // Global quit flag for signal handler
 volatile sig_atomic_t g_quit_flag = 0;
@@ -21,6 +21,8 @@ void signalHandler(int signum) {
 int main(int argc, char* argv[]) {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
+
+    QApplication app(argc, argv);
 
     Config config;
     if (!ConfigLoader::load(config, argv[0])) {
@@ -42,16 +44,15 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    QApplication app(argc, argv);
+    QMainWindow window;
+    window.setWindowTitle("Aurora Visualizer");
+    window.resize(config.width, config.height);
 
     Core visualizerCore(config);
-    if (!visualizerCore.init()) {
-        Logger::error("Failed to initialize visualizer core.");
-        return 1;
-    }
+    QtGui gui(config, visualizerCore, &window);
 
-    QtGui gui(config, visualizerCore);
-    gui.init();
+    window.setCentralWidget(&gui);
+    window.show();
 
     // Connect the application's aboutToQuit signal to the core's cleanup method
     QObject::connect(&app, &QApplication::aboutToQuit, [&visualizerCore]() {

@@ -1,55 +1,53 @@
-## **GEMINI NOTE:**
-### Can we ignore EVERYTHING and then undo ignore on only the projects needed to compile files and docs?
-
-# General
-.DS_Store
-.env
-
-# Build artifacts
-/build/
-/*.o
-/*.out
-# keep compiled binaries moved to the project root from /build/
-#/visualizer
-#/visualizer_*
-
-# generated videos
-/videos/
-
-# Dependency directories
-/deps/
-
-# testing audio
-/music/
-
-
-# Backup and temporary files
-/backups/
-*.bak
-*.backup
-*.log
-*.mp4
-*.wav
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*~
-
-# CMake specific
+# CMake
+build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-Makefile
-install_manifest.txt
 compile_commands.json
-_CPack_Packages/
-# cmake build directory
-/build
+CTestTestfile.cmake
+lib/
 
-# ProjectM specific (if applicable)
+# Dependencies
+deps/
+_deps/
+cpm_cache/
 projectm_build/
 projectm_install/
 projectm_src/
-projectM_external-prefix/
+
+# Backups
+backups/
+*.tar.gz
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Qt
+moc_*.cpp
+ui_*.h
+
+# General
+*.o
+*.so
+*.a
+*.dll
+*.exe
+*.out
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# User additions
+videos/

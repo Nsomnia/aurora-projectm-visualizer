@@ -20,23 +20,26 @@ This project is under active development, with a focus on robust performance, a 
 
 ## Building from Source
 
-1.  **Clone the repository:**
+This project uses CMake and requires a C++17 compiler. Dependencies are managed automatically.
+
+1.  **Prerequisites:**
+    *   A C++ compiler (like GCC or Clang)
+    *   CMake (version 3.20 or higher)
+    *   Git
+    *   Development libraries for Qt6, OpenGL, GLEW, GLM, Freetype, and FFmpeg.
+        *   On Debian/Ubuntu: `sudo apt-get install build-essential cmake git qt6-base-dev libgl1-mesa-dev libglew-dev libglm-dev libfreetype6-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev`
+
+2.  **Configure and Build:**
     ```bash
-    git clone <repository-url>
-    cd aurora-visualizer
+    cmake -B build
+    cmake --build build
     ```
-2.  **Install dependencies:**
-    *   Ensure you have a C++ compiler (`g++`), `cmake` (version 3.20 or higher), and `git`.
-    *   Install development libraries for `SDL2`, `SDL2_mixer`, `SDL2_ttf`, `glew`, `glm`, and `freetype`.
-    *   **`ffmpeg` is required for video recording.** Ensure `ffmpeg` is installed and accessible in your system's PATH.
-3.  **Build the project:**
+    The executable will be located at `build/bin/AuroraVisualizer`.
+
+3.  **Run:**
     ```bash
-    mkdir -p build
-    cd build
-    cmake ..
-    cmake --build .
+    ./build/bin/AuroraVisualizer
     ```
-    The compiled binary will be located in the `build/` directory.
 
 ## Usage
 
@@ -127,6 +130,18 @@ video_framerate = 24
 # Note: {WIDTH}, {HEIGHT}, {FPS}, and {OUTPUT_PATH} are placeholders.
 ffmpeg_command = "ffmpeg -y -f rawvideo -pix_fmt rgb24 -s {WIDTH}x{HEIGHT} -r {FPS} -i - -c:v libx265 -crf 28 -preset medium -c:a aac -b:a 192k {OUTPUT_PATH}"
 ```
+```
+
+## Versioning
+
+The project version is defined in `CMakeLists.txt`. This version is used for display purposes and for naming backup archives. To update the project version, change the `project(AuroraVisualizer VERSION ...)` line in `CMakeLists.txt`.
+
+## Backups
+
+A full project backup can be created by running the `create_backup` target. This will create a timestamped `.tar.gz` archive in the `backups/` directory containing the source code, documentation, configuration, and the compiled executable.
+
+```bash
+cmake --build build --target create_backup
 ```
 
 ## Contributing

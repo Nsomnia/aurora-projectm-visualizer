@@ -1,9 +1,8 @@
 #include "QtGui.h"
 #include "core.h"
-#include "QtOpenGLWidget.h" // Include the new header
+#include "QtOpenGLWidget.h"
 #include "Config.h"
 #include <QApplication>
-#include <QMainWindow>
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
@@ -30,65 +29,56 @@ QString get_preset_short_name(const std::string& full_path) {
     return QString::fromStdString(p.stem().string());
 }
 
-QWidget* QtGui::getVisualizerWidget() const {
-    return visualizerWidget;
-}
+QtGui::QtGui(Config& config, Core& core, QWidget* parent)
+    : QMainWindow(parent), _config(config), _core(core) {
+    setWindowTitle("Aurora Visualizer");
+    resize(_config.width, _config.height);
+    setDockNestingEnabled(true);
 
-
-QtGui::QtGui(Config& config, Core& core) : _config(config), _core(core) {}
-
-QtGui::~QtGui() {}
-
-void QtGui::init() {
-    _window = std::make_unique<QMainWindow>();
-    _window->setWindowTitle("Aurora Visualizer");
-    _window->resize(_config.width, _config.height); // Set window size from config
-    _window->setDockNestingEnabled(true); // Allow tabbing
-
-    // Create the custom visualizer widget
-    visualizerWidget = new QtOpenGLWidget(_core, _window.get());
-    _window->setCentralWidget(visualizerWidget);
+    _visualizer_widget = new QtOpenGLWidget(_core, this);
+    setCentralWidget(_visualizer_widget);
 
     createMenus();
     createDockWidgets();
 
-    _window->show();
+    show();
 }
 
+QtGui::~QtGui() {}
 
 void QtGui::createMenus() {
     // File Menu
-    fileMenu = _window->menuBar()->addMenu(tr("&File"));
-    quitAction = new QAction(tr("&Quit"), _window.get());
-    quitAction->setShortcuts(QKeySequence::Quit);
-    connect(quitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
-    fileMenu->addAction(quitAction);
+    _file_menu = menuBar()->addMenu(tr("&File"));
+    _quit_action = new QAction(tr("&Quit"), this);
+    _quit_action->setShortcuts(QKeySequence::Quit);
+    connect(_quit_action, &QAction::triggered, QApplication::instance(), &QApplication::quit);
+    _file_menu->addAction(_quit_action);
 
     // View Menu (for toggling docks)
-    viewMenu = _window->menuBar()->addMenu(tr("&View"));
+    _view_menu = menuBar()->addMenu(tr("&View"));
 
     // Help Menu
-    helpMenu = _window->menuBar()->addMenu(tr("&Help"));
-    aboutAction = new QAction(tr("&About"), _window.get());
-    connect(aboutAction, &QAction::triggered, this, &QtGui::about);
-    helpMenu->addAction(aboutAction);
+    _help_menu = menuBar()->addMenu(tr("&Help"));
+    _about_action = new QAction(tr("&About"), this);
+    connect(_about_action, &QAction::triggered, this, &QtGui::about);
+    _help_menu->addAction(_about_action);
 }
 
 void QtGui::createDockWidgets() {
     // --- Playlist Dock ---
-    playlistDock = new QDockWidget(tr("Playlist"), _window.get());
-    playlistDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _playlist_dock = new QDockWidget(tr("Playlist"), this);
+    _playlist_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     QWidget* playlistContainerWidget = new QWidget();
     QVBoxLayout* playlistLayout = new QVBoxLayout(playlistContainerWidget);
 
-    playlistWidget = new QListWidget();
-    playlistWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    playlistWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _playlist_widget = new QListWidget();
+    _playlist_widget->setDragDropMode(QAbstractItemView::InternalMove);
+    _playlist_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     for (const std::string& filePath : _config.audio_file_paths) {
-        playlistWidget->addItem(QString::fromStdString(filePath));
+        _playlist_widget->addItem(QString::fromStdString(filePath));
     }
-    playlistLayout->addWidget(playlistWidget);
+    playlistLayout->addWidget(_playlist_widget);
 
     // Add/Remove Buttons
     QHBoxLayout* playlistButtonsLayout = new QHBoxLayout();
@@ -112,21 +102,21 @@ void QtGui::createDockWidgets() {
     playbackButtonsLayout->addWidget(nextButton);
     playlistLayout->addLayout(playbackButtonsLayout);
 
-    playlistDock->setWidget(playlistContainerWidget);
-    _window->addDockWidget(Qt::LeftDockWidgetArea, playlistDock);
+    _playlist_dock->setWidget(playlistContainerWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, _playlist_dock);
 
     // --- Controls Dock ---
-    controlsDock = new QDockWidget(tr("Controls"), _window.get());
-    controlsDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _controls_dock = new QDockWidget(tr("Controls"), this);
+    _controls_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     QWidget* controlsContainerWidget = new QWidget();
     QVBoxLayout* controlsLayout = new QVBoxLayout(controlsContainerWidget);
     controlsLayout->setSpacing(10);
 
     // Current Preset Label
-    currentPresetLabel = new QLabel(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
-    currentPresetLabel->setWordWrap(true);
-    controlsLayout->addWidget(currentPresetLabel);
+    _current_preset_label = new QLabel(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
+    _current_preset_label->setWordWrap(true);
+    controlsLayout->addWidget(_current_preset_label);
 
     // Next/Previous Preset Buttons
     QHBoxLayout* presetButtonsLayout = new QHBoxLayout();
@@ -165,22 +155,22 @@ void QtGui::createDockWidgets() {
 
 
     controlsLayout->addStretch(); // Pushes widgets to the top
-    controlsDock->setWidget(controlsContainerWidget);
-    _window->addDockWidget(Qt::LeftDockWidgetArea, controlsDock);
+    _controls_dock->setWidget(controlsContainerWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, _controls_dock);
 
     // --- Dock Layout ---
-    _window->tabifyDockWidget(playlistDock, controlsDock);
-    playlistDock->raise(); // Make playlist the default visible tab
+    tabifyDockWidget(_playlist_dock, _controls_dock);
+    _playlist_dock->raise(); // Make playlist the default visible tab
 
     // --- View Menu Actions ---
-    viewMenu->addAction(playlistDock->toggleViewAction());
-    viewMenu->addAction(controlsDock->toggleViewAction());
+    _view_menu->addAction(_playlist_dock->toggleViewAction());
+    _view_menu->addAction(_controls_dock->toggleViewAction());
 
 
     // --- Connect Signals ---
     connect(addFileButton, &QPushButton::clicked, this, &QtGui::add_audio_file);
     connect(removeFileButton, &QPushButton::clicked, this, &QtGui::remove_selected_audio_file);
-    connect(playlistWidget->model(), &QAbstractItemModel::rowsMoved, this, &QtGui::playlist_reordered);
+    connect(_playlist_widget->model(), &QAbstractItemModel::rowsMoved, this, &QtGui::playlist_reordered);
     connect(playButton, &QPushButton::clicked, this, &QtGui::play_audio);
     connect(pauseButton, &QPushButton::clicked, this, &QtGui::pause_audio);
     connect(stopButton, &QPushButton::clicked, this, &QtGui::stop_audio);
@@ -192,7 +182,7 @@ void QtGui::createDockWidgets() {
 
 void QtGui::add_audio_file() {
     QStringList fileNames = QFileDialog::getOpenFileNames(
-        _window.get(),
+        this,
         tr("Add Audio Files"),
         QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
         tr("Audio Files (*.mp3 *.wav *.flac *.ogg);;All Files (*)")
@@ -201,14 +191,14 @@ void QtGui::add_audio_file() {
     if (!fileNames.isEmpty()) {
         for (const QString& fileName : fileNames) {
             _config.audio_file_paths.push_back(fileName.toStdString());
-            playlistWidget->addItem(fileName);
+            _playlist_widget->addItem(fileName);
         }
         _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
     }
 }
 
 void QtGui::remove_selected_audio_file() {
-    QList<QListWidgetItem*> selectedItems = playlistWidget->selectedItems();
+    QList<QListWidgetItem*> selectedItems = _playlist_widget->selectedItems();
     if (selectedItems.isEmpty()) {
         return;
     }
@@ -217,10 +207,10 @@ void QtGui::remove_selected_audio_file() {
     // Iterate backwards to safely remove items while modifying the list
     for (int i = selectedItems.size() - 1; i >= 0; --i) {
         QListWidgetItem* item = selectedItems.at(i);
-        int row = playlistWidget->row(item);
+        int row = _playlist_widget->row(item);
         if (row != -1) {
             _config.audio_file_paths.erase(_config.audio_file_paths.begin() + row);
-            delete playlistWidget->takeItem(row); // takeItem removes and returns, then delete
+            delete _playlist_widget->takeItem(row); // takeItem removes and returns, then delete
         }
     }
     _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
@@ -229,8 +219,8 @@ void QtGui::remove_selected_audio_file() {
 void QtGui::playlist_reordered() {
     // Reconstruct _config.audio_file_paths based on the new order in playlistWidget
     _config.audio_file_paths.clear();
-    for (int i = 0; i < playlistWidget->count(); ++i) {
-        _config.audio_file_paths.push_back(playlistWidget->item(i)->text().toStdString());
+    for (int i = 0; i < _playlist_widget->count(); ++i) {
+        _config.audio_file_paths.push_back(_playlist_widget->item(i)->text().toStdString());
     }
     _core.set_audio_file_paths(_config.audio_file_paths); // Notify Core
 }
@@ -257,16 +247,16 @@ void QtGui::prev_audio() {
 
 void QtGui::next_preset() {
     _core.next_preset();
-    currentPresetLabel->setText(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
+    _current_preset_label->setText(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
 }
 
 void QtGui::prev_preset() {
     _core.prev_preset();
-    currentPresetLabel->setText(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
+    _current_preset_label->setText(tr("Preset: ") + get_preset_short_name(_core.get_current_preset_name()));
 }
 
 void QtGui::about() {
-    QMessageBox::about(_window.get(), tr("About Aurora Visualizer"),
+    QMessageBox::about(this, tr("About Aurora Visualizer"),
         tr("<h2>Aurora Visualizer</h2>"
            "<p>Version 0.1.0-dev</p>"
            "<p>A cross-platform audio visualizer using projectM.</p>"));
