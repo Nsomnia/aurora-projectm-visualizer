@@ -2,9 +2,12 @@
 #include "ConfigLoader.h"
 #include "Config.h"
 #include "utils/Logger.h"
+#include "config.h"
 #include <toml++/toml.h>
 #include <filesystem>
 #include <iostream>
+#include <QString>
+#include <QKeySequence>
 
 namespace fs = std::filesystem;
 
@@ -41,9 +44,7 @@ bool ConfigLoader::load(Config& config, const std::string &executable_path_str) 
     toml::table merged_config;
 
     // 1. Load default config
-    fs::path exe_dir = fs::path(executable_path_str).parent_path();
-    fs::path project_root = exe_dir.parent_path();
-    fs::path default_config_path = project_root / "config" / "default.toml";
+    fs::path default_config_path = fs::path(CONFIG_DIR) / "default.toml";
 
     if (fs::exists(default_config_path)) {
         try {
@@ -119,10 +120,10 @@ bool ConfigLoader::load(Config& config, const std::string &executable_path_str) 
         config.presetBlendTime = presets["preset_blend_time"].value_or(config.presetBlendTime);
         config.preset_list_file = resolve_path(presets["preset_list_file"].value_or(config.preset_list_file));
         config.broken_preset_directory = resolve_path(presets["broken_preset_directory"].value_or(config.broken_preset_directory));
-        config.next_preset_key = SDL_GetKeyFromName(presets["next_preset_key"].value_or("n"));
-        config.prev_preset_key = SDL_GetKeyFromName(presets["prev_preset_key"].value_or("p"));
-        config.mark_broken_preset_key = SDL_GetKeyFromName(presets["mark_broken_preset_key"].value_or("b"));
-        config.favorite_preset_key = SDL_GetKeyFromName(presets["favorite_preset_key"].value_or("f"));
+        config.next_preset_key = QKeySequence::fromString(QString::fromStdString(presets["next_preset_key"].value_or("n")));
+        config.prev_preset_key = QKeySequence::fromString(QString::fromStdString(presets["prev_preset_key"].value_or("p")));
+        config.mark_broken_preset_key = QKeySequence::fromString(QString::fromStdString(presets["mark_broken_preset_key"].value_or("b")));
+        config.favorite_preset_key = QKeySequence::fromString(QString::fromStdString(presets["favorite_preset_key"].value_or("f")));
         config.use_default_projectm_visualizer = presets["use_default_projectm_visualizer"].value_or(config.use_default_projectm_visualizer);
         config.favorites_only_shuffle = presets["favorites_only_shuffle"].value_or(config.favorites_only_shuffle);
     }

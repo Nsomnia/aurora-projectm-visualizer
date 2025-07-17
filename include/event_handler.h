@@ -5,23 +5,21 @@
 #include "AnimationManager.h"
 #include "TextRenderer.h"
 #include "TextManager.h"
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include "core.h"
+#include <QKeyEvent>
 #include <projectM-4/projectM.h>
 #include <string>
 #include <vector>
 
 class EventHandler {
 public:
-    EventHandler(Config& config, PresetManager& presetManager, AnimationManager& animationManager, TextRenderer& textRenderer, TextManager& textManager);
+    EventHandler(Config& config, Core& core, PresetManager& presetManager);
     ~EventHandler();
 
-    void handle_event(const SDL_Event& event, bool& g_quit, int& current_audio_index, double& time_since_last_shuffle, std::string& currentPreset, projectm_handle pM, std::vector<std::string>& titleLines);
+    void handle_key_press(QKeyEvent* event);
 
 private:
     Config& _config;
+    Core& _core;
     PresetManager& _presetManager;
-    AnimationManager& _animationManager;
-    TextRenderer& _textRenderer;
-    TextManager& _textManager;
 };

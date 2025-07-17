@@ -33,6 +33,22 @@ void AudioInput::load_and_play_music(const std::string& music_file) {
     Mix_PlayMusic(_music, 1);
 }
 
+void AudioInput::pause_music() {
+    if (Mix_PlayingMusic() == 1) {
+        Mix_PauseMusic();
+    }
+}
+
+void AudioInput::resume_music() {
+    if (Mix_PausedMusic() == 1) {
+        Mix_ResumeMusic();
+    }
+}
+
+void AudioInput::stop_music() {
+    Mix_HaltMusic();
+}
+
 void AudioInput::cleanup() {
     if (_music) {
         Mix_FreeMusic(_music);

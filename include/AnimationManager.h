@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <GL/glew.h>
 
 enum class AnimationState {
     INITIAL_DELAY,

@@ -19,6 +19,13 @@ configure_file(
     "${CMAKE_BINARY_DIR}/include/version.h"
 )
 
+# Configure a header file for other paths and definitions
+set(CONFIG_DIR "${CMAKE_SOURCE_DIR}/config")
+configure_file(
+    "${CMAKE_SOURCE_DIR}/include/config.h.in"
+    "${CMAKE_BINARY_DIR}/include/config.h"
+)
+
 # --- CPM.cmake Dependency Manager ---
 set(CPM_SOURCE_CACHE ${CMAKE_SOURCE_DIR}/deps/cpm_cache)
 include(cmake/CPM.cmake)
@@ -26,11 +33,12 @@ include(cmake/CPM.cmake)
 # --- System Dependencies ---
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavformat libavutil libswscale)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 # --- CPM Dependencies ---
 CPMAddPackage(
@@ -47,35 +55,25 @@ set_property(TARGET projectM_lib PROPERTY IMPORTED_LOCATION "${PROJECTM_LIB_PATH
 set_property(TARGET projectM_lib PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PROJECTM_INSTALL_DIR}/include")
 
 if(NOT EXISTS "${PROJECTM_LIB_PATH}")
-    message(STATUS "projectM library not found. Building from source (v4.1.0). This may take a few minutes...")
-    include(ExternalProject)
-    ExternalProject_Add(
-        projectM_external
-        GIT_REPOSITORY https://github.com/projectM-visualizer/projectm.git
-        GIT_TAG v4.1.0
-        GIT_SHALLOW TRUE
-        SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/projectm_src"
-        BINARY_DIR "${CMAKE_SOURCE_DIR}/deps/projectm_build"
-        INSTALL_DIR "${PROJECTM_INSTALL_DIR}"
-        CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DBUILD_SHARED_LIBS=ON
-            -DPROJECTM_ENABLE_QT5=OFF
-            -DPROJECTM_ENABLE_TESTS=OFF
-            -DPROJECTM_BUILD_SDL_UI=OFF
-            -DPROJECTM_BUILD_GLM_EXTERNAL=OFF
-            -DPROJECTM_BUILD_PROJECTM_EVAL_EXTERNAL=OFF
-        BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>
-        INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>
-    )
-    add_dependencies(projectM_lib projectM_external)
+    message(STATUS "projectM library not found. Please ensure it is built and installed in ${PROJECTM_INSTALL_DIR}")
+    # The ExternalProject_Add block has been removed to favor a manual build process.
+    # To build projectM, navigate to deps/projectm_src and follow their build instructions.
+    # Example:
+    # cd deps/projectm_src
+    # mkdir build && cd build
+    # cmake .. -DCMAKE_INSTALL_PREFIX=../../projectm_install -DBUILD_SHARED_LIBS=ON -DPROJECTM_ENABLE_QT5=OFF
+    # cmake --build . --target install
 else()
     message(STATUS "Found pre-built projectM library at ${PROJECTM_LIB_PATH}")
 endif()
 
 # --- Source Files ---
-file(GLOB_RECURSE APP_SOURCE_FILES "src/*.cpp")
+file(GLOB_RECURSE APP_SOURCE_FILES 
+    "src/*.cpp" 
+    "src/utils/*.cpp"
+    "src/*.vert" 
+    "src/*.frag"
+)
 
 # --- Qt MOC Generation ---
 set(CMAKE_AUTOUIC ON)
@@ -94,13 +92,17 @@ target_include_directories(AuroraVisualizer PRIVATE
     "${tomlplusplus_SOURCE_DIR}/include"
 )
 
+
+
 target_link_libraries(AuroraVisualizer PRIVATE
     projectM_lib
     tomlplusplus::tomlplusplus
     Qt6::Widgets Qt6::OpenGLWidgets
     ${FREETYPE_LIBRARIES}
-    OpenGL::GL GLEW::GLEW glm::glm
+    OpenGL::GL glm::glm
     PkgConfig::FFMPEG
+    SDL2::SDL2
+    SDL2_mixer::SDL2_mixer
 )
 
 # --- Post-Build Message ---

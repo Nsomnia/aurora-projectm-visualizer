@@ -29,19 +29,24 @@ QString get_preset_short_name(const std::string& full_path) {
     return QString::fromStdString(p.stem().string());
 }
 
-QtGui::QtGui(Config& config, Core& core, QWidget* parent)
-    : QMainWindow(parent), _config(config), _core(core) {
+QtGui::QtGui(Config& config, Core& core)
+    : QMainWindow(nullptr), _config(config), _core(core) {
     setWindowTitle("Aurora Visualizer");
     resize(_config.width, _config.height);
     setDockNestingEnabled(true);
+    setDockOptions(QMainWindow::AnimatedDocks | QMainWindow::AllowNestedDocks);
 
-    _visualizer_widget = new QtOpenGLWidget(_core, this);
-    setCentralWidget(_visualizer_widget);
+    QWidget* centralContainer = new QWidget(this);
+    QHBoxLayout* centralLayout = new QHBoxLayout(centralContainer);
+    centralLayout->setContentsMargins(0, 0, 0, 0);
+
+    _visualizer_widget = new QtOpenGLWidget(_core, centralContainer);
+    centralLayout->addWidget(_visualizer_widget);
+
+    setCentralWidget(centralContainer);
 
     createMenus();
     createDockWidgets();
-
-    show();
 }
 
 QtGui::~QtGui() {}
@@ -154,13 +159,11 @@ void QtGui::createDockWidgets() {
     controlsLayout->addWidget(favoritesOnlyShuffleCheckBox);
 
 
-    controlsLayout->addStretch(); // Pushes widgets to the top
     _controls_dock->setWidget(controlsContainerWidget);
     addDockWidget(Qt::LeftDockWidgetArea, _controls_dock);
 
     // --- Dock Layout ---
-    tabifyDockWidget(_playlist_dock, _controls_dock);
-    _playlist_dock->raise(); // Make playlist the default visible tab
+    splitDockWidget(_playlist_dock, _controls_dock, Qt::Vertical);
 
     // --- View Menu Actions ---
     _view_menu->addAction(_playlist_dock->toggleViewAction());

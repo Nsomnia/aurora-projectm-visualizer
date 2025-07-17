@@ -24,6 +24,11 @@ int main(int argc, char* argv[]) {
 
     QApplication app(argc, argv);
 
+    QSurfaceFormat format;
+    format.setVersion(3, 3);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(format);
+
     Config config;
     if (!ConfigLoader::load(config, argv[0])) {
         Logger::error("Failed to load configuration.");
@@ -44,14 +49,10 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    QMainWindow window;
+    Core visualizerCore(config);
+    QtGui window(config, visualizerCore);
     window.setWindowTitle("Aurora Visualizer");
     window.resize(config.width, config.height);
-
-    Core visualizerCore(config);
-    QtGui gui(config, visualizerCore, &window);
-
-    window.setCentralWidget(&gui);
     window.show();
 
     // Connect the application's aboutToQuit signal to the core's cleanup method

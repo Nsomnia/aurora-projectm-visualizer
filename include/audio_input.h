@@ -15,6 +15,9 @@ public:
 
     bool init();
     void load_and_play_music(const std::string& music_file);
+    void pause_music();
+    void resume_music();
+    void stop_music();
     void cleanup();
     Mix_Music* get_music() const { return _music; }
     double get_audio_duration() const;

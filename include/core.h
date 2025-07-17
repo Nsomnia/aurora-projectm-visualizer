@@ -22,6 +22,7 @@ public:
     bool init(QOpenGLWidget* openGLWidget);
     void render();
     void cleanup();
+    void resize(int w, int h);
     void set_audio_file_paths(const std::vector<std::string>& paths);
     void play_audio();
     void pause_audio();
@@ -31,6 +32,8 @@ public:
     void next_preset();
     void prev_preset();
     std::string get_current_preset_name() const;
+
+    projectm_handle projectM() const { return _pM; }
 
 private:
     Config& _config;

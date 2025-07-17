@@ -2,9 +2,12 @@
 #include "CliParser.h"
 #include "Config.h"
 #include "utils/Logger.h"
+#include "config.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <QString>
+#include <QKeySequence>
 
 void CliParser::display_help(const std::string &program_name) {
   // ANSI escape codes for colors
@@ -114,10 +117,10 @@ bool CliParser::parse(Config& config, int argc, char *argv[]) {
     parsers["--preset-list-file"] = [&config](const std::string& v){ config.preset_list_file = v; };
     parsers["--broken-preset-directory"] = [&config](const std::string& v){ config.broken_preset_directory = v; };
     parsers["--favorites-file"] = [&config](const std::string& v){ config.favoritesFile = v; };
-    parsers["--next-preset-key"] = [&config](const std::string& v){ config.next_preset_key = SDL_GetKeyFromName(v.c_str()); };
-    parsers["--prev-preset-key"] = [&config](const std::string& v){ config.prev_preset_key = SDL_GetKeyFromName(v.c_str()); };
-    parsers["--mark-broken-preset-key"] = [&config](const std::string& v){ config.mark_broken_preset_key = SDL_GetKeyFromName(v.c_str()); };
-    parsers["--favorite-preset-key"] = [&config](const std::string& v){ config.favorite_preset_key = SDL_GetKeyFromName(v.c_str()); };
+    parsers["--next-preset-key"] = [&config](const std::string& v){ config.next_preset_key = QKeySequence::fromString(QString::fromStdString(v)); };
+    parsers["--prev-preset-key"] = [&config](const std::string& v){ config.prev_preset_key = QKeySequence::fromString(QString::fromStdString(v)); };
+    parsers["--mark-broken-preset-key"] = [&config](const std::string& v){ config.mark_broken_preset_key = QKeySequence::fromString(QString::fromStdString(v)); };
+    parsers["--favorite-preset-key"] = [&config](const std::string& v){ config.favorite_preset_key = QKeySequence::fromString(QString::fromStdString(v)); };
     parsers["--url-text"] = [&config](const std::string& v){ config.urlText = v; };
     parsers["--artist-name"] = [&config](const std::string& v){ config.artistName = v; };
     parsers["--font-path"] = [&config](const std::string& v){ config.font_path = v; };

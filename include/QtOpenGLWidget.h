@@ -1,9 +1,10 @@
 #pragma once
 
-#include <QWidget>
 #include "core.h"
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions_3_3_Core>
 
-class QtOpenGLWidget : public QWidget {
+class QtOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
 public:
@@ -11,8 +12,9 @@ public:
     ~QtOpenGLWidget() override;
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
-    void resizeEvent(QResizeEvent* event) override;
+    void initializeGL() override;
+    void paintGL() override;
+    void resizeGL(int w, int h) override;
 
 private:
     Core& _core;

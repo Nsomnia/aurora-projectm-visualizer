@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <GL/glew.h>
+#include <QOpenGLFunctions_3_3_Core>
 
 struct Character {
     unsigned int textureID;
@@ -15,7 +15,7 @@ struct Character {
     unsigned int advance;
 };
 
-class TextRenderer {
+class TextRenderer : protected QOpenGLFunctions_3_3_Core {
 public:
     TextRenderer();
     ~TextRenderer();

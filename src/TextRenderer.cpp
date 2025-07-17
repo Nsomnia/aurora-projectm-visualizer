@@ -1,5 +1,6 @@
 #include "TextRenderer.h"
-#include <GL/glew.h>
+#include "utils/Logger.h"
+#include "utils/gl_utils.h"
 #include <iostream>
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
@@ -55,6 +56,7 @@ void TextRenderer::cleanup() {
 }
 
 bool TextRenderer::init(const std::string& fontPath, int fontSize) {
+    initializeOpenGLFunctions();
     if (FT_Init_FreeType(&_ft)) return false;
     if (FT_New_Face(_ft, fontPath.c_str(), 0, &_face)) return false;
     FT_Set_Pixel_Sizes(_face, 0, fontSize);
@@ -100,6 +102,7 @@ void TextRenderer::setProjection(int width, int height) {
 }
 
 void TextRenderer::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, bool show_border, const glm::vec3& border_color, float border_thickness) {
+    Logger::info("TextRenderer::renderText() called for text: " + text);
     // NOTE: The contrast adjustment logic was causing heap corruption and has been disabled.
     float final_border_thickness = show_border ? border_thickness : 0.0f;
     renderTextPass(text, x, y, scale, color, alpha, border_color, final_border_thickness);
@@ -127,15 +130,18 @@ glm::vec4 TextRenderer::getTextBounds(const std::string& text, float x, float y,
 }
 
 void TextRenderer::renderTextPass(const std::string& text, float x, float y, float scale, const glm::vec3& color, float alpha, const glm::vec3& border_color, float border_thickness) {
+    CHECK_GL_ERROR();
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(_shaderProgram);
+    CHECK_GL_ERROR();
     glUniform3f(glGetUniformLocation(_shaderProgram, "textColor"), color.x, color.y, color.z);
     glUniform1f(glGetUniformLocation(_shaderProgram, "alpha"), alpha);
     glUniform3f(glGetUniformLocation(_shaderProgram, "borderColor"), border_color.x, border_color.y, border_color.z);
     glUniform1f(glGetUniformLocation(_shaderProgram, "borderThickness"), border_thickness);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(_vao);
+    CHECK_GL_ERROR();
 
     for (const char& c : text) {
         Character ch = _characters[c];
@@ -154,11 +160,13 @@ void TextRenderer::renderTextPass(const std::string& text, float x, float y, flo
         glDrawArrays(GL_TRIANGLES, 0, 6);
         x += (ch.advance >> 6) * scale;
     }
+    CHECK_GL_ERROR();
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
     glDisable(GL_BLEND);
+    CHECK_GL_ERROR();
 }
 
 float TextRenderer::getTextWidth(const std::string& text, float scale) {

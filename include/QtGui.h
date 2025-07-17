@@ -17,7 +17,7 @@ class QtGui : public QMainWindow {
     Q_OBJECT
 
 public:
-    QtGui(Config& config, Core& core, QWidget* parent = nullptr);
+    QtGui(Config& config, Core& core);
     ~QtGui();
 
 private slots:
