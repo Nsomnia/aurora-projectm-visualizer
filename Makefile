@@ -85,6 +85,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/sbin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/sbin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/sbin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/sbin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/sbin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/sbin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/nsomnia/Documents/zzzz_VISUALIZER-WORKING-COPY/CMakeFiles /home/nsomnia/Documents/zzzz_VISUALIZER-WORKING-COPY//CMakeFiles/progress.marks
@@ -117,19 +162,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named projectM_external
-
-# Build rule for target.
-projectM_external: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 projectM_external
-.PHONY : projectM_external
-
-# fast build rule for target.
-projectM_external/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/projectM_external.dir/build.make CMakeFiles/projectM_external.dir/build
-.PHONY : projectM_external/fast
-
-#=============================================================================
 # Target rules for targets named AuroraVisualizer
 
 # Build rule for target.
@@ -143,17 +175,17 @@ AuroraVisualizer/fast:
 .PHONY : AuroraVisualizer/fast
 
 #=============================================================================
-# Target rules for targets named create_source_backup
+# Target rules for targets named create_backup
 
 # Build rule for target.
-create_source_backup: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 create_source_backup
-.PHONY : create_source_backup
+create_backup: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 create_backup
+.PHONY : create_backup
 
 # fast build rule for target.
-create_source_backup/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/create_source_backup.dir/build.make CMakeFiles/create_source_backup.dir/build
-.PHONY : create_source_backup/fast
+create_backup/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/create_backup.dir/build.make CMakeFiles/create_backup.dir/build
+.PHONY : create_backup/fast
 
 #=============================================================================
 # Target rules for targets named AuroraVisualizer_autogen_timestamp_deps
@@ -445,6 +477,30 @@ src/VideoExporter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/VideoExporter.cpp.s
 .PHONY : src/VideoExporter.cpp.s
 
+src/audio_input.o: src/audio_input.cpp.o
+.PHONY : src/audio_input.o
+
+# target to build an object file
+src/audio_input.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/audio_input.cpp.o
+.PHONY : src/audio_input.cpp.o
+
+src/audio_input.i: src/audio_input.cpp.i
+.PHONY : src/audio_input.i
+
+# target to preprocess a source file
+src/audio_input.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/audio_input.cpp.i
+.PHONY : src/audio_input.cpp.i
+
+src/audio_input.s: src/audio_input.cpp.s
+.PHONY : src/audio_input.s
+
+# target to generate assembly for a file
+src/audio_input.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/audio_input.cpp.s
+.PHONY : src/audio_input.cpp.s
+
 src/backends/audio_backend.o: src/backends/audio_backend.cpp.o
 .PHONY : src/backends/audio_backend.o
 
@@ -516,6 +572,30 @@ src/core.s: src/core.cpp.s
 src/core.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/core.cpp.s
 .PHONY : src/core.cpp.s
+
+src/event_handler.o: src/event_handler.cpp.o
+.PHONY : src/event_handler.o
+
+# target to build an object file
+src/event_handler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/event_handler.cpp.o
+.PHONY : src/event_handler.cpp.o
+
+src/event_handler.i: src/event_handler.cpp.i
+.PHONY : src/event_handler.i
+
+# target to preprocess a source file
+src/event_handler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/event_handler.cpp.i
+.PHONY : src/event_handler.cpp.i
+
+src/event_handler.s: src/event_handler.cpp.s
+.PHONY : src/event_handler.s
+
+# target to generate assembly for a file
+src/event_handler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/event_handler.cpp.s
+.PHONY : src/event_handler.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -637,6 +717,30 @@ src/utils/common.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/utils/common.cpp.s
 .PHONY : src/utils/common.cpp.s
 
+src/utils/gl_utils.o: src/utils/gl_utils.cpp.o
+.PHONY : src/utils/gl_utils.o
+
+# target to build an object file
+src/utils/gl_utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/utils/gl_utils.cpp.o
+.PHONY : src/utils/gl_utils.cpp.o
+
+src/utils/gl_utils.i: src/utils/gl_utils.cpp.i
+.PHONY : src/utils/gl_utils.i
+
+# target to preprocess a source file
+src/utils/gl_utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/utils/gl_utils.cpp.i
+.PHONY : src/utils/gl_utils.cpp.i
+
+src/utils/gl_utils.s: src/utils/gl_utils.cpp.s
+.PHONY : src/utils/gl_utils.s
+
+# target to generate assembly for a file
+src/utils/gl_utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AuroraVisualizer.dir/build.make CMakeFiles/AuroraVisualizer.dir/src/utils/gl_utils.cpp.s
+.PHONY : src/utils/gl_utils.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -644,11 +748,14 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... AuroraVisualizer_autogen"
 	@echo "... AuroraVisualizer_autogen_timestamp_deps"
-	@echo "... create_source_backup"
-	@echo "... projectM_external"
+	@echo "... create_backup"
 	@echo "... AuroraVisualizer"
 	@echo "... AuroraVisualizer_autogen/mocs_compilation.o"
 	@echo "... AuroraVisualizer_autogen/mocs_compilation.i"
@@ -683,6 +790,9 @@ help:
 	@echo "... src/VideoExporter.o"
 	@echo "... src/VideoExporter.i"
 	@echo "... src/VideoExporter.s"
+	@echo "... src/audio_input.o"
+	@echo "... src/audio_input.i"
+	@echo "... src/audio_input.s"
 	@echo "... src/backends/audio_backend.o"
 	@echo "... src/backends/audio_backend.i"
 	@echo "... src/backends/audio_backend.s"
@@ -692,6 +802,9 @@ help:
 	@echo "... src/core.o"
 	@echo "... src/core.i"
 	@echo "... src/core.s"
+	@echo "... src/event_handler.o"
+	@echo "... src/event_handler.i"
+	@echo "... src/event_handler.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
@@ -707,6 +820,9 @@ help:
 	@echo "... src/utils/common.o"
 	@echo "... src/utils/common.i"
 	@echo "... src/utils/common.s"
+	@echo "... src/utils/gl_utils.o"
+	@echo "... src/utils/gl_utils.i"
+	@echo "... src/utils/gl_utils.s"
 .PHONY : help
 
 

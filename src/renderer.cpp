@@ -123,7 +123,18 @@ bool Renderer::create_fbo(int width, int height) {
 void Renderer::render_to_fbo(projectm_handle pM) {
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+    glUseProgram(0);
+    glBindVertexArray(0);
+
     projectm_opengl_render_frame(pM);
+
+    glPopAttrib();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_AuroraVisualizer_FILE /home/nsomnia/Documents/zzzz_VISUALIZER-WORKING-COPY/AuroraVisualizer)
-set(__QT_DEPLOY_TARGET_AuroraVisualizer_TYPE EXECUTABLE)

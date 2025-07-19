@@ -1,0 +1,10 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#define PROJECT_VERSION_MAJOR 0
+#define PROJECT_VERSION_MINOR 2
+#define PROJECT_VERSION_PATCH 0
+
+#define PROJECT_VERSION "0.2.0"
+
+#endif // VERSION_H

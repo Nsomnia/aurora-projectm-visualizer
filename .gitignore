@@ -6,6 +6,7 @@ cmake_install.cmake
 compile_commands.json
 CTestTestfile.cmake
 lib/
+cpm-package-lock.cmake
 
 # Dependencies
 deps/
@@ -31,6 +32,7 @@ backups/
 # Qt
 moc_*.cpp
 ui_*.h
+.qt/
 
 # General
 *.o
@@ -50,4 +52,6 @@ ehthumbs.db
 Thumbs.db
 
 # User additions
-videos/.env
+videos/
+.env
+GEMINI*.md
