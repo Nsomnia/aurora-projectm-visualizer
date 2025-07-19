@@ -84,6 +84,11 @@ bool ConfigLoader::load(Config& config, const std::string &executable_path_str) 
         config.fps = display["fps"].value_or(config.fps);
     }
 
+    if (merged_config.contains("debug")) {
+        const auto& debug = *merged_config["debug"].as_table();
+        config.disable_fbo = debug["disable_fbo"].value_or(config.disable_fbo);
+    }
+
     if (merged_config.contains("text")) {
         const auto& text = *merged_config["text"].as_table();
         config.font_path = resolve_path(text["font_path"].value_or(config.font_path));

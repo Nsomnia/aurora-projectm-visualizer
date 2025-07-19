@@ -29,6 +29,12 @@ height = 720
 # Frames per second for both rendering and video recording.
 fps = 30
 
+# --- Debug ---
+[debug]
+# Disable the Framebuffer Object (FBO) for debugging rendering issues.
+disable_fbo = false
+
+
 # --- Text & Font ---
 [text]
 # Path to the TTF or OTF font file for all text rendering.

@@ -17,6 +17,7 @@ public:
     void cleanup();
 
 private:
+    Config* _config;
     GLuint _fbo;
     GLuint _fbo_texture;
     GLuint _rbo;

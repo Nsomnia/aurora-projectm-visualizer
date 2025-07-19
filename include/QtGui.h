@@ -36,6 +36,7 @@ private slots:
 private:
     void createMenus();
     void createDockWidgets();
+    void update_core_playlist();
 
     Config& _config;
     Core& _core;

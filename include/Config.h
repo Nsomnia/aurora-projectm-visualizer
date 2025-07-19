@@ -25,6 +25,9 @@ struct Config {
     int height = 640;
     int fps = 30;
 
+    // Debug
+    bool disable_fbo = false;
+
     // Font & Text
     std::string font_path = "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf";
     std::string songTitle = "No Song Title";
